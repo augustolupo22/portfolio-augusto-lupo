@@ -2,6 +2,13 @@
 
 Portfolio para clientes, colegas y equipos de producción. Desde una credencial de realizador se pasa a un archivo de trabajos que se puede recorrer por disciplina. La referencia orienta la composición, no el contenido de las fotografías.
 
+## Enlaces
+
+- Sitio publicado: https://portfolio-augusto-lupo.vercel.app
+- Repositorio: https://github.com/augustolupo22/portfolio-augusto-lupo
+
+El sitio se publica en Vercel: cada push a `main` genera un nuevo deploy de producción automáticamente.
+
 ## Ejecutar
 
 Desde la raíz, con Node.js LTS (recomendado: 22.19 o posterior) y npm:
@@ -59,4 +66,4 @@ Astro genera HTML estático para la portada y las fichas. El CSS se ocupa del di
 
 5. Al preparar el repositorio, el material original pesaba 2,3 GB y doce videos superaban los 50 MB (GitHub rechaza archivos de más de 100 MB). Se separaron los originales en `media-originales/` (fuera del repositorio) y se agregó `npm run media`, que genera fotos de hasta 2400 px y videos 720p H.264. El material publicado bajó a 105 MB y el video más pesado a 11 MB. Así el book de XV, que no forma parte del catálogo, ya no se copia al despliegue.
 
-La IA asistió en el diseño inicial, los componentes, la redacción y la verificación técnica. La selección de trabajos, la referencia, los datos personales y los criterios de presentación fueron provistos por Augusto. Antes de publicar, revisar permisos, créditos y peso de los medios. Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible. Pendientes: revisión propia del código, publicación y enlaces definitivos de sitio/repositorio.
+La IA asistió en el diseño inicial, los componentes, la redacción y la verificación técnica. La selección de trabajos, la referencia, los datos personales y los criterios de presentación fueron provistos por Augusto. Antes de publicar, revisar permisos, créditos y peso de los medios. Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible. Pendientes: revisión propia del código.
