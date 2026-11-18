@@ -1,0 +1,106 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const links = [
+  ['inicio', 'Inicio'], ['sobre-mi', 'Sobre mí'], ['proyectos', 'Proyectos'],
+  ['experiencia', 'Experiencia'], ['contacto', 'Contacto'],
+];
+const initial = Astro.url.pathname === '/' ? 'inicio' : 'proyectos';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#070B14" />
+    {description && <meta name="description" content={description} />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Secciones del portfolio">
+        {links.map(([id, label]) => (
+          <a href={`/#${id}`} aria-current={id === initial ? 'location' : undefined}>{label}</a>
+        ))}
+      </nav>
+    </header>
+    <main id="contenido" tabindex="-1"><slot /></main>
+    <footer class="site-footer container">
+      <span>© {new Date().getFullYear()} Augusto Lupo</span>
+      <a href="/#inicio">Volver al inicio ↑</a>
+    </footer>
+    <div class="load-meter" hidden>
+      <label for="intro-progress">Cargando imágenes <span>0%</span></label>
+      <progress id="intro-progress" max="100" value="0"></progress>
+    </div>
+
+    <script>
+      const meter = document.querySelector<HTMLElement>('.load-meter')!;
+      const pending = Array.from(document.images).filter(img => !img.complete && img.loading !== 'lazy');
+      if (pending.length) {
+        const progress = meter.querySelector('progress')!;
+        const output = meter.querySelector('span')!;
+        let settled = 0;
+        meter.hidden = false;
+        for (const img of pending) {
+          const finish = () => {
+            img.removeEventListener('load', finish);
+            img.removeEventListener('error', finish);
+            progress.value = Math.round(++settled / pending.length * 100);
+            output.textContent = `${progress.value}%`;
+            meter.hidden = settled === pending.length;
+          };
+          img.addEventListener('load', finish);
+          img.addEventListener('error', finish);
+          if (img.complete) finish();
+        }
+        window.addEventListener('load', () => { meter.hidden = true; }, { once: true });
+      }
+
+      if (location.pathname === '/') {
+        const header = document.querySelector<HTMLElement>('.site-header')!;
+        const items = Array.from(header.querySelectorAll('a'), link => ({
+          link, section: document.getElementById(link.hash.slice(1)),
+        })).filter(item => item.section);
+        let active: HTMLAnchorElement | undefined;
+        const update = () => {
+          const edge = Math.max(header.getBoundingClientRect().bottom + 20, innerHeight * .25);
+          let current = items[0];
+          for (const item of items) {
+            if (item.section!.getBoundingClientRect().top <= edge) current = item;
+          }
+          if (scrollY > 0 && innerHeight + scrollY >= document.documentElement.scrollHeight - 1) {
+            current = items[items.length - 1];
+          }
+          if (current && active !== current.link) {
+            (active ?? header.querySelector('[aria-current]'))?.removeAttribute('aria-current');
+            active = current.link;
+            active.setAttribute('aria-current', 'location');
+          }
+        };
+        update();
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        window.addEventListener('pageshow', update);
+      }
+
+      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const observer = new IntersectionObserver(entries => {
+          entries.filter(entry => entry.isIntersecting).forEach(({ target }, index) => {
+            (target as HTMLElement).style.setProperty('--reveal-delay', `${Math.min(index, 4) * 45}ms`);
+            target.classList.add('is-revealed');
+            observer.unobserve(target);
+          });
+        });
+        document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+---
+import type { ProjectImage } from '../data/project-types';
+interface Props { images: ProjectImage[] }
+const { images } = Astro.props;
+---
+{images.length > 0 && <section aria-label="Galería del proyecto">
+  <h2>Galería</h2>
+  <div>{images.map(image => <img data-reveal src={image.src} alt={image.alt} loading="lazy" decoding="async" />)}</div>
+</section>}
+<style>
+  div { columns:3 15rem; column-gap:.75rem; }
+  img { display:block; width:100%; height:auto; margin-bottom:.75rem; break-inside:avoid; }
+</style>

@@ -1,0 +1,61 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProjectCover from '../../components/ProjectCover.astro';
+import ProjectGallery from '../../components/ProjectGallery.astro';
+import ProjectVideos from '../../components/ProjectVideos.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({ params: { slug: project.slug }, props: { project, index } }));
+}
+const { project, index } = Astro.props;
+const previous = projects[(index + projects.length - 1) % projects.length];
+const next = projects[(index + 1) % projects.length];
+---
+<Layout title={`${project.title} | Augusto Lupo`}>
+  <article class="sheet" data-project-slug={project.slug}>
+    <a href="/#proyectos">← Volver a proyectos</a>
+    <p data-visit-error hidden>No se pudo guardar esta visita en el recorrido de este navegador.</p>
+    <header data-reveal>
+      <p class="folio">ARCHIVO / {String(index + 1).padStart(2, '0')} · {project.categories.join(' / ')}</p>
+      <h1>{project.title}</h1>
+      <ProjectCover {project} {index} hero />
+    </header>
+    <p class="intro" data-reveal>{project.description}</p>
+    {(project.role || project.year || project.tools?.length) && <dl>
+      {project.role && <div><dt>Rol</dt><dd>{project.role}</dd></div>}
+      {project.year && <div><dt>Año</dt><dd>{project.year}</dd></div>}
+      {!!project.tools?.length && <div><dt>Herramientas</dt><dd>{project.tools.join(' · ')}</dd></div>}
+    </dl>}
+    <ProjectVideos videos={project.videos ?? []} projectTitle={project.title} />
+    <ProjectGallery images={project.images ?? []} />
+    {!!project.links?.length && <section><h2>Enlaces del proyecto</h2><ul>{project.links.map(link => <li><a href={link.href}>{link.label}</a></li>)}</ul></section>}
+    {projects.length > 1 && <nav data-reveal aria-label="Proyectos relacionados">
+      <a href={`/proyectos/${previous.slug}/`}><small>← Anterior</small>{previous.title}</a>
+      <a href={`/proyectos/${next.slug}/`}><small>Siguiente →</small>{next.title}</a>
+    </nav>}
+  </article>
+</Layout>
+<script>
+  import { recordVisit } from '../../lib/recorrido';
+  window.addEventListener('pageshow', () => {
+    const sheet = document.querySelector<HTMLElement>('[data-project-slug]');
+    if (!sheet?.dataset.projectSlug) return;
+    const error = sheet.querySelector<HTMLElement>('[data-visit-error]')!;
+    try {
+      recordVisit(sheet.dataset.projectSlug);
+      error.hidden = true;
+    } catch {
+      error.hidden = false;
+    }
+  });
+</script>
+<style>
+  .sheet { padding:clamp(2rem,6vw,6rem) max(5%,calc((100% - 68rem)/2)); color:var(--text); background:var(--bg); }
+  header { margin-top:3rem; } .folio,dt,small { font:.8rem/1.5 monospace; color:var(--accent); letter-spacing:.08em; }
+  h1 { max-width:17ch; margin:.2em 0 .5em; font:500 clamp(2.8rem,8vw,7rem)/1 system-ui,sans-serif; letter-spacing:-.065em; }
+  .intro { max-width:50ch; font:1.6rem/1.35 Georgia,serif; }
+  dl,nav { display:flex; flex-wrap:wrap; gap:1.5rem; } dd { margin:.3rem 0; }
+  a { color:inherit; } a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+  nav { margin-top:3rem; padding-top:1rem; border-top:1px solid #748096; justify-content:space-between; } small { display:block; }
+</style>

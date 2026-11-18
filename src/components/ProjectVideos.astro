@@ -1,0 +1,24 @@
+---
+import type { ProjectVideo } from '../data/project-types';
+interface Props { videos: (ProjectVideo & { width?: number; height?: number })[]; projectTitle: string }
+const { videos, projectTitle } = Astro.props;
+---
+{videos.length > 0 && <section aria-label="Videos del proyecto">
+  <h2>Videos</h2>
+  <div class="players">{videos.map((video, index) => {
+    const label = `${projectTitle}, video ${index + 1}`;
+    const ratio = video.width && video.height ? `${video.width} / ${video.height}` : undefined;
+    return <div data-reveal style={ratio ? `--ratio:${ratio}` : undefined}>
+    {video.type === 'file' ? <video controls playsinline preload="none" src={video.src} poster={video.poster} width={video.width} height={video.height} aria-label={label}>
+      {video.captions && <track kind="captions" src={video.captions} srclang="es" label="Español" default />}
+    </video> : <iframe loading="lazy" title={label} allowfullscreen referrerpolicy="strict-origin-when-cross-origin"
+      src={(video.type === 'youtube' ? 'https://www.youtube-nocookie.com/embed/' : 'https://player.vimeo.com/video/') + encodeURIComponent(video.id)} />}
+    </div>;
+  })}</div>
+</section>}
+<style>
+  .players { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr)); gap:.75rem; align-items:start; }
+  video,iframe { display:block; width:100%; height:auto; background:#0a1224; border:0; }
+  video { aspect-ratio:var(--ratio,auto); object-fit:contain; max-width:calc(80svh * var(--ratio,16 / 9)); margin-inline:auto; }
+  iframe { aspect-ratio:var(--ratio,16/9); }
+</style>
