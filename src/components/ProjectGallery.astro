@@ -1,13 +1,98 @@
 ---
+// Galería en columnas con visor a pantalla completa (flechas, Escape y gestos de deslizamiento).
+// Sin JavaScript, cada foto es un enlace normal a la imagen.
 import type { ProjectImage } from '../data/project-types';
-interface Props { images: ProjectImage[] }
-const { images } = Astro.props;
+interface Props { images: ProjectImage[]; title: string }
+const { images, title } = Astro.props;
 ---
-{images.length > 0 && <section aria-label="Galería del proyecto">
-  <h2>Galería</h2>
-  <div>{images.map(image => <img data-reveal src={image.src} alt={image.alt} loading="lazy" decoding="async" />)}</div>
+{images.length > 0 && <section class="gallery" aria-labelledby="gallery-title">
+  <div class="gallery-head">
+    <h2 id="gallery-title">Galería</h2>
+    <span class="count">{`${images.length} ${images.length === 1 ? 'foto' : 'fotos'}`}</span>
+  </div>
+  <div class="masonry">{images.map((image, i) => (
+    <a href={image.src} class="shot" data-index={i} data-reveal aria-label={`Ampliar foto ${i + 1} de ${images.length}`}>
+      <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+    </a>
+  ))}</div>
+
+  <dialog class="viewer" aria-label={`Fotos de ${title}`}>
+    <figure>
+      <img alt="" />
+      <figcaption><span data-pos></span></figcaption>
+    </figure>
+    <button type="button" class="v-btn v-close" data-close aria-label="Cerrar visor">✕</button>
+    <button type="button" class="v-btn v-prev" data-step="-1" aria-label="Foto anterior">‹</button>
+    <button type="button" class="v-btn v-next" data-step="1" aria-label="Foto siguiente">›</button>
+  </dialog>
 </section>}
+
+<script>
+  const gallery = document.querySelector<HTMLElement>('.gallery');
+  const viewer = gallery?.querySelector<HTMLDialogElement>('.viewer');
+  if (gallery && viewer && typeof viewer.showModal === 'function') {
+    const shots = Array.from(gallery.querySelectorAll<HTMLAnchorElement>('.shot'));
+    const img = viewer.querySelector('img')!;
+    const pos = viewer.querySelector<HTMLElement>('[data-pos]')!;
+    let current = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      current = (i + shots.length) % shots.length;
+      const source = shots[current].querySelector('img')!;
+      img.classList.remove('is-in');
+      img.src = source.src;
+      img.alt = source.alt;
+      pos.textContent = `${current + 1} / ${shots.length}`;
+      img.decode().catch(() => {}).finally(() => img.classList.add('is-in'));
+      // Precarga la siguiente para que el paso sea instantáneo.
+      new Image().src = shots[(current + 1) % shots.length].href;
+    };
+
+    shots.forEach((shot, i) => shot.addEventListener('click', e => {
+      e.preventDefault();
+      opener = shot;
+      show(i);
+      viewer.showModal();
+    }));
+    viewer.querySelectorAll<HTMLButtonElement>('[data-step]').forEach(b => b.addEventListener('click', () => show(current + Number(b.dataset.step))));
+    viewer.querySelector('[data-close]')!.addEventListener('click', () => viewer.close());
+    viewer.addEventListener('click', e => { if (e.target === viewer) viewer.close(); });
+    viewer.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') show(current + 1);
+      if (e.key === 'ArrowLeft') show(current - 1);
+    });
+    viewer.addEventListener('close', () => opener?.focus());
+
+    let startX = 0;
+    viewer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    viewer.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>
+
 <style>
-  div { columns:3 15rem; column-gap:.75rem; }
-  img { display:block; width:100%; height:auto; margin-bottom:.75rem; break-inside:avoid; }
+  .gallery { margin-top: clamp(3.5rem, 7vw, 5rem); }
+  .gallery-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.2rem; }
+  h2 { font-size: clamp(1.8rem, 3.5vw, 2.4rem); }
+  .count { font: 500 .78rem var(--mono); color: var(--muted); letter-spacing: .08em; }
+  .masonry { columns: 3 16rem; column-gap: .8rem; }
+  .shot { display: block; margin-bottom: .8rem; break-inside: avoid; border-radius: .8rem; overflow: hidden; border: 1px solid var(--border); cursor: zoom-in; }
+  .shot img { display: block; width: 100%; height: auto; transition: transform .8s var(--ease-out), filter .5s; }
+  .shot:hover img { transform: scale(1.04); filter: brightness(1.08); }
+
+  .viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(3 6 12 / .94); color: var(--text); }
+  .viewer::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(6px); }
+  .viewer figure { display: grid; place-items: center; height: 100%; margin: 0; padding: 4rem 4.5rem 3rem; }
+  .viewer img { max-width: 100%; max-height: calc(100dvh - 7rem); object-fit: contain; border-radius: .5rem; opacity: 0; transform: scale(.98); transition: opacity .35s, transform .5s var(--ease-out); }
+  .viewer img.is-in { opacity: 1; transform: none; }
+  .viewer figcaption { position: absolute; bottom: 1.1rem; left: 50%; translate: -50% 0; font: 500 .8rem var(--mono); color: var(--muted); }
+  .v-btn { position: absolute; display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; border: 1px solid var(--border-strong); background: rgb(17 24 39 / .8); color: var(--text); font-size: 1.5rem; line-height: 1; cursor: pointer; transition: background-color .2s, border-color .2s; }
+  .v-btn:hover { background: var(--accent-strong); border-color: transparent; }
+  .v-close { top: 1rem; right: 1rem; font-size: 1rem; }
+  .v-prev { left: 1rem; top: 50%; translate: 0 -50%; } .v-next { right: 1rem; top: 50%; translate: 0 -50%; }
+  @media (max-width: 600px) { .viewer figure { padding: 3.5rem .5rem 3rem; } .v-prev, .v-next { top: auto; bottom: .6rem; translate: none; } }
+  @media (prefers-reduced-motion: reduce) { .viewer img { transition: none; } }
 </style>

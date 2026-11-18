@@ -12,11 +12,25 @@
     "posters": "node scripts/video-posters.mjs"
   },
   "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
     "ffmpeg-static": "^5.2.0",
     "ffprobe-static": "^3.1.0",
-    "sharp": "0.34.5"
+    "sharp": "0.34.5",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "astro": "^5.0.0"
+    "@astrojs/react": "^4.4.2",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/rapier": "^2.2.0",
+    "astro": "^5.0.0",
+    "meshline": "^3.3.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.187.0"
   }
 }

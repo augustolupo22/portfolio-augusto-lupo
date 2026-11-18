@@ -1,74 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ProjectIndex from '../components/ProjectIndex.astro';
-import CameraPass from '../components/CameraPass.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import PortfolioTabs from '../components/PortfolioTabs.astro';
+import Contact from '../components/Contact.astro';
 import { profile } from '../data/profile';
-const { name, subtitle, portrait, about, stats, experience, contact } = profile;
 ---
-<Layout title={`${name} | Portfolio audiovisual`}>
-  <section id="inicio" class="hero panel" aria-labelledby="nombre">
-    <div class="hero-inner frame">
-      <div>
-        <p class="label"><i></i> Portfolio audiovisual</p>
-        <h1 id="nombre">{name}</h1>
-        <p class="intro">{subtitle}</p>
-         <p>{profile.intro}</p>
-         <div class="actions"><a class="button" href="#proyectos">Explorar proyectos <span aria-hidden="true">↓</span></a><a href="#sobre-mi">Sobre mí</a></div>
-      </div>
-      <CameraPass {name} {portrait} />
-    </div>
-    <div class="rail frame" aria-hidden="true"><span>AL / Archivo visual</span><i></i><span>Foto + video</span></div>
-  </section>
-  <section id="sobre-mi" class="panel chapter" aria-labelledby="sobre-titulo">
-    <div class="frame split" data-reveal>
-      <div><p class="label">01 / Sobre mí</p><h2 id="sobre-titulo">{about.title}</h2>{portrait && <img class="media" loading="lazy" src={portrait.src} alt={portrait.alt} />}</div>
-      <div class="copy"><p class="lead">{about.description}</p><p>{about.education}</p><p>{about.approach}</p>
-        <dl>{stats.map(({label,value}) => <div><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
-      </div>
-    </div>
-  </section>
-  <ProjectIndex />
-  <section id="experiencia" class="panel chapter" aria-labelledby="experiencia-titulo">
-    <div class="frame"><p class="label">03 / Recorrido profesional</p><h2 id="experiencia-titulo">Experiencia.</h2>
-      {experience.map((entry,i) => <article class="record" data-reveal>
-        <span class="label">{String(i+1).padStart(2,'0')} /</span>
-        <div>{entry.logo && <img class="logo" src={entry.logo.src} alt={entry.logo.alt} loading="lazy" />}<h3>{entry.title}</h3></div>
-        <div><p>{entry.description}</p>
-          {entry.image && <img class="media" src={entry.image.src} alt={entry.image.alt} loading="lazy" />}
-          {entry.video && <video class="media" controls preload="none" aria-label={entry.video.title} src={entry.video.src}>{entry.video.captions && <track kind="captions" srclang="es" label="Español" src={entry.video.captions} />}</video>}
-        </div>
-      </article>)}
-    </div>
-  </section>
-  <section id="contacto" class="panel chapter contact" aria-labelledby="contacto-titulo">
-    <div class="frame split" data-reveal>
-      <div><p class="label">04 / Contacto</p><h2 id="contacto-titulo" lang="en">{contact.title}</h2></div>
-      <div><p class="lead">{contact.subtitle}</p><a class="mail" href={`mailto:${contact.email}`}>{contact.email} ↗</a>
-        <div class="socials">{contact.socials.map(s => <a href={s.url}>{s.label} <span>{s.handle}</span></a>)}</div>
-      </div>
-    </div>
-  </section>
+<Layout title={`${profile.name} | Portfolio audiovisual`}>
+  <Hero />
+  <About />
+  <PortfolioTabs />
+  <Contact />
 </Layout>
-<style>
-  .panel{--ink:#f1f1ec;--blue:#9cc4ff;--muted:#b7c3d1;--rule:#384656;background:#101823;color:var(--ink)}
-  .frame{width:min(86rem,89%);margin-inline:auto}.hero{background:radial-gradient(ellipse at 72% 38%,#1b3556,transparent 53%),#0c1420}.hero-inner{display:grid;align-items:center;grid-template-columns:1.1fr 1fr;min-height:clamp(32rem,76vh,52rem)}
-  .label,.rail{font:600 .7rem/1.5 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.15em;color:var(--blue)}.label i{display:inline-block;width:7px;height:7px;background:currentColor;margin-right:8px}
-  h1,h2,h3,p,dl,dd{margin:0}h1,h2{font-weight:500;letter-spacing:-.065em;text-wrap:balance}h1{font-size:clamp(4.6rem,9.8vw,10rem);line-height:.91;max-width:6.6ch;margin:.24em 0}h2{font-size:clamp(2.6rem,4.8vw,5.3rem);line-height:1.03;margin:.4em 0}
-  p:not(.label){line-height:1.65;color:var(--muted);max-width:52ch}.intro,.lead{font-size:clamp(1.05rem,1.4vw,1.35rem)}a{color:inherit;text-underline-offset:.23em}a:focus-visible{outline:2px solid var(--blue);outline-offset:4px}.button{display:inline-flex;gap:1.7rem;align-items:center;margin-top:1.7rem;padding:.85rem 1.25rem;background:#d3e6ff;color:#101c29;text-decoration:none;border-radius:3px;font-weight:600}.button:hover{background:white}
-  .rail{display:flex;align-items:center;gap:1rem;padding-block:1.2rem;border-top:1px solid var(--rule);font-size:.6rem}.rail i{flex:1;height:7px;background:repeating-linear-gradient(90deg,#708ba180 0 1px,transparent 1px 12px)}
-  .chapter{padding-block:clamp(4rem,9vw,9rem)}.split{display:grid;grid-template-columns:1fr 1fr;gap:8%}.copy p+p{margin-top:1rem}dl{display:flex;gap:2.5rem;padding-top:1.25rem;border-top:1px solid var(--rule);margin-top:2rem}dl div{display:flex;flex-direction:column-reverse}dt{color:var(--muted);font-size:.85rem}dd{font:italic 2.5rem Georgia,serif;color:var(--blue)}
-  .record{display:grid;grid-template-columns:3rem 1fr 1fr;gap:2rem;align-items:start;border-top:1px solid var(--rule);padding:1.75rem 0}.record:first-of-type{margin-top:2.5rem}.record h3{font-size:clamp(1.4rem,2.5vw,2.3rem);letter-spacing:-.04em;font-weight:500}.media{width:100%;height:auto;margin-top:1rem}.logo{max-width:8rem;max-height:3rem;margin-bottom:1rem}
-  .contact{background:linear-gradient(110deg,#162e50,#101b2b);border-top:1px solid var(--rule)}.contact h2{font:italic clamp(3rem,6vw,6.5rem)/.99 Georgia,serif;letter-spacing:-.065em}.mail{display:inline-block;margin:1.6rem 0;color:var(--blue);overflow-wrap:anywhere;font-size:clamp(1rem,1.9vw,1.6rem)}.socials a{border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:1rem;padding:.8rem 0;text-decoration:none}.socials span{color:var(--muted)}.socials a:hover{text-decoration:underline}
-  @media(max-width:700px){.hero-inner,.split{grid-template-columns:1fr}.hero-inner{padding-top:4rem}.split{gap:1.5rem}.record{grid-template-columns:2rem 1fr;gap:.6rem}.record>div:last-child{grid-column:2}.rail{letter-spacing:.09em}.frame{width:88%}}
-</style>
-<style>
-  .actions{display:flex;align-items:baseline;gap:1.3rem;flex-wrap:wrap}.intro{margin-bottom:.75rem}.actions .button{background:#2563eb;color:white}.actions .button:hover{background:#1d4ed8}
-  .mail:is(:hover,:focus-visible),.socials a:is(:hover,:focus-visible){color:white;text-decoration:underline}
-  @media(prefers-reduced-motion:no-preference){
-    :where(.hero-inner>div:first-child)>*{animation:reveal-in var(--take) var(--ease-out) backwards}
-    .hero-inner h1{animation-delay:50ms}.hero-inner .intro{animation-delay:100ms}.hero-inner .intro+p{animation-delay:145ms}.hero-inner .actions{animation-delay:190ms}
-    .socials span,.button span,.mail{transition:translate .22s var(--ease-out)}
-    .socials a:is(:hover,:focus-visible) span,.mail:is(:hover,:focus-visible){translate:3px 0}
-    .button:is(:hover,:focus-visible) span{translate:0 3px}
-  }
-</style>

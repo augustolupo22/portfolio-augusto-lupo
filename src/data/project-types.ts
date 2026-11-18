@@ -12,6 +12,7 @@ export interface Project {
   description: string;
   categories: Category[];
   role?: string;
+  client?: string;
   tools?: string[];
   year?: number;
   cover?: ProjectImage;

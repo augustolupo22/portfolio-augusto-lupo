@@ -1,6 +1,6 @@
 # Augusto Lupo | Portfolio audiovisual
 
-Portfolio para clientes, colegas y equipos de producción. Desde una credencial de realizador se pasa a un archivo de trabajos que se puede recorrer por disciplina. La referencia orienta la composición, no el contenido de las fotografías.
+Portfolio de un realizador audiovisual (director de cámaras, filmmaker y fotógrafo) para **clientes, colegas y posibles empleadores**. La experiencia se presenta como un "pase de rodaje": se entra por una credencial colgante en 3D que se puede agarrar y sacudir, se recorre un archivo de trabajos reales filtrable por disciplina, y se cierra con un muro donde los visitantes dejan su mensaje.
 
 ## Enlaces
 
@@ -20,10 +20,12 @@ npm run dev
 
 Abrir la dirección que indique Astro. Para construir la versión estática, ejecutar `npm run build`; para revisarla, `npm run preview`. La carpeta publicable es `dist/`.
 
+Para que funcione el muro de mensajes en local, copiar `.env.example` como `.env` y completar las credenciales de Supabase (ver [Muro de mensajes](docs/muro-de-mensajes.md)). Sin ellas el sitio funciona igual y el muro muestra que no está conectado.
+
 ## Edición de contenido
 
-- `src/data/profile.ts`: presentación, experiencia, estadísticas y contacto. Agregar Behance a `contact.socials` solo con su URL confirmada.
-- Para usar un retrato, colocar la foto autorizada en `media-originales/`, optimizarla (ver abajo) y establecer `portrait: { src: '/media/retrato.webp', alt: 'Retrato de Augusto Lupo' }`. Sin foto, la credencial usa una gráfica de cámara.
+- `src/data/profile.ts`: presentación, roles, formación, experiencia, herramientas, equipo, clientes y contacto. Agregar Behance o LinkedIn a `contact.socials` solo con su URL confirmada. Las estadísticas de "Sobre mí" se calculan solas a partir del catálogo.
+- Retrato: `profile.portrait` (foto) y `profile.portraitFocus` (punto de foco vertical al recortarla en la credencial).
 - `src/data/projects.ts`: un registro por trabajo. El `slug` debe ser único; el orden determina los enlaces anterior/siguiente. Los formatos de imagen, video, enlace y categorías están definidos en `src/data/project-types.ts`. No completar años ni roles por aproximación.
 - Escribir el texto alternativo de cada imagen y agregar subtítulos cuando el audio sea necesario. Los cambios en el catálogo requieren volver a construir y publicar.
 
@@ -46,15 +48,59 @@ Al agregar, renombrar o reemplazar videos, ejecutar `npm run posters` desde la r
 
 Versionar los WebP de `public/video-posters/` junto con `src/data/video-posters.json`. No colocar posters junto a los videos: el catálogo los contaría como fotos. En la interfaz, cada `ProjectVideo` con `type: 'file'` expone `poster` (URL pública) y `width`/`height` (dimensiones de presentación del video original) para reservar su proporción antes de cargarlo.
 
-## Decisiones y componentes
+## Tecnologías y decisiones
 
-Astro genera HTML estático para la portada y las fichas. El CSS se ocupa del diseño y el movimiento; no se necesita React para filtrar una grilla ni una biblioteca de animación para mover la credencial.
+- **Astro 5** genera HTML estático para la portada y las fichas. Casi toda la interacción es JavaScript liviano dentro de cada componente.
+- **React + Three.js (React Three Fiber, Drei, Rapier)** solo para la credencial 3D, como *isla* de Astro (`client:only`). Se eligió porque la física de una cinta colgante (cuerdas, gravedad, arrastre) es el elemento más memorable de la referencia y no se puede resolver con CSS. Para no castigar a todos los dispositivos, el paquete 3D se descarga **solo** en pantallas grandes con mouse, con WebGL y sin "reducir movimiento". En el resto se ve una credencial estática hecha con HTML/CSS.
+- **CSS propio** (sin Tailwind): tokens de color en `src/styles/global.css`, tarjetas de vidrio, brillo azul y animaciones con `transition`/`@keyframes`. Tipografías **Geist** y **Geist Mono** autoalojadas con Fontsource.
+- **Supabase** (API REST) como fuente dinámica del muro de mensajes.
+- **Vercel** para el despliegue continuo desde GitHub.
 
-- `CameraPass.astro`: compone la credencial con foto opcional y movimiento de profundidad.
-- `ProjectIndex.astro`: filtra por disciplina, anuncia el resultado y permite entrar a las fichas. Sin JavaScript mantiene los enlaces al catálogo completo.
-- `ProjectCover.astro`, `ProjectGallery.astro` y `ProjectVideos.astro`: separan portada y medios opcionales de cada ficha. Si no hay portada se muestra una placa tipográfica, no material de otra producción.
-- `Layout.astro`: navegación compartida, indicador de carga basado en imágenes pendientes y estilos globales. La composición pasa a una columna en celulares, el contenido no depende del hover y el movimiento respeta la preferencia del dispositivo.
-- Fuente dinámica: [Retomar recorrido](docs/recorrido.md) lee las últimas fichas abiertas en este navegador. No es una API externa ni un servicio de analítica. El catálogo editorial se mantiene separado de ese historial.
+## Componentes propios relevantes
+
+| Componente | Responsabilidad |
+|---|---|
+| `lanyard/LanyardIsland.tsx` + `LanyardScene.tsx` + `textures.ts` | Credencial 3D con física: tres tramos de cinta unidos por *rope joints* sostienen una tarjeta rígida que se puede arrastrar. Las caras de la tarjeta y la cinta se dibujan en `<canvas>` con el retrato y los datos de `profile.ts` (no hay modelo 3D externo). Decide si el dispositivo soporta 3D; si no, deja la versión estática. |
+| `CameraPass.astro` | Credencial estática (HTML/CSS): versión sin JavaScript, para celulares y para quien prefiere menos movimiento. |
+| `PortfolioTabs.astro` | Pestañas accesibles (patrón ARIA, flechas del teclado) entre Proyectos, Herramientas, Equipo y Clientes; filtros de proyectos por disciplina con conteo, anuncio del resultado para lectores de pantalla, estado vacío y transiciones (View Transitions API). |
+| `Guestbook.astro` + `lib/guestbook.ts` | Muro de mensajes: lectura y escritura en Supabase con todos sus estados. |
+| `ProjectGallery.astro` | Galería en columnas con visor a pantalla completa (`<dialog>`): flechas, Escape, deslizar en celular, contador y devolución del foco. |
+| `Hero.astro`, `About.astro`, `Contact.astro` | Secciones de la portada. `About` calcula sus cifras desde el catálogo (no hay números escritos a mano). |
+| `Layout.astro` + `scripts/` | Pantalla de carga con progreso real (`loader.ts`), fondo de estrellas en canvas (`starfield.ts`), menú con indicador de sección activa (`nav.ts`) y aparición al hacer scroll (`reveal.ts`). |
+
+## Fuente dinámica: muro de mensajes
+
+Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. La API utilizada, los estados (sin configurar, cargando, vacío, error con reintento, validación, enviando, enviado, espera), la seguridad y la configuración están en **[docs/muro-de-mensajes.md](docs/muro-de-mensajes.md)**.
+
+## Interacción y estados
+
+- **Credencial 3D**: se arrastra y se suelta; la física responde. La pista "Arrastrá la credencial" desaparece después del primer agarre.
+- **Pantalla de carga**: el porcentaje sigue tareas reales (tipografías, imágenes del inicio, credencial lista). Si todo ya está listo termina enseguida y nunca supera los 7 s. Solo aparece en la primera visita de la sesión.
+- **Portfolio**: pestaña activa, filtro activo, resultado anunciado y estado vacío con "Ver todos".
+- **Muro**: ver la tabla de estados en la documentación.
+- **Contacto**: copiar el email confirma "¡Copiado!" (o explica si el navegador no lo permite).
+
+## Responsive y accesibilidad
+
+- Probado a 375 px (celular) y en escritorio. En celular las grillas pasan a una columna, la credencial es estática y el menú entra completo.
+- Teclado: enlace "Saltar al contenido", foco visible en todos los controles, pestañas con flechas, visor de fotos con Escape y devolución del foco.
+- Lectores de pantalla: los roles que se "escriben" solos tienen su texto completo oculto visualmente; filtros y muro anuncian cambios con `role="status"`; las imágenes tienen texto alternativo; la credencial 3D es decorativa (`aria-hidden`) y su información está en el texto de la portada.
+- `prefers-reduced-motion`: sin 3D, sin estrellas animadas, sin escritura automática ni apariciones.
+- Contraste: texto principal #F8FAFC y secundario #94A3B8 sobre fondo #070B14.
+
+## Limitaciones conocidas y mejoras posibles
+
+- La escena 3D pesa cerca de 1,1 MB comprimida (Three.js + motor de física). Se descarga solo en escritorio, pero podría aligerarse.
+- El muro no tiene moderación automática: los mensajes se moderan a mano desde Supabase.
+- La pestaña **Equipo** está vacía hasta cargar el listado real.
+- Faltan los enlaces de Behance y LinkedIn.
+
+## Créditos
+
+- Referencia visual: video de un portfolio con credencial colgante compartido en TikTok. Se tomó la estructura general (intro con porcentaje, credencial, pestañas, muro de mensajes); los textos, fotos, datos y el diseño de la credencial son propios.
+- Tipografías Geist y Geist Mono (SIL Open Font License) vía Fontsource.
+- Librerías: Astro, React, Three.js, React Three Fiber, Drei, Rapier y MeshLine (licencias MIT / Apache 2.0).
+- Fotos y videos: trabajos de Augusto Lupo. Los derechos de las producciones pertenecen a sus respectivos clientes.
 
 ## Bitácora y pendientes
 
@@ -65,5 +111,7 @@ Astro genera HTML estático para la portada y las fichas. El CSS se ocupa del di
 4. Con el material provisto por Augusto se acotó el catálogo a cinco trabajos: El Gran Premio de la Cocina, Por amor o por dinero, DJ FGL, FAUDA y Valen Cortes. Cada ficha toma sus medios de la carpeta configurada bajo `public/media` al reconstruir el sitio. La credencial ahora lleva el retrato personal y las galerías aparecen progresivamente al recorrerlas.
 
 5. Al preparar el repositorio, el material original pesaba 2,3 GB y doce videos superaban los 50 MB (GitHub rechaza archivos de más de 100 MB). Se separaron los originales en `media-originales/` (fuera del repositorio) y se agregó `npm run media`, que genera fotos de hasta 2400 px y videos 720p H.264. El material publicado bajó a 105 MB y el video más pesado a 11 MB. Así el book de XV, que no forma parte del catálogo, ya no se copia al despliegue.
+
+6. Se tomó como referencia el video de un portfolio con credencial colgante y se rearmó el sitio con esa estructura: intro con porcentaje real, credencial 3D con física (React Three Fiber + Rapier), "Sobre mí" con formación, experiencia y cifras del catálogo, portfolio con pestañas y filtros, fichas con visor de fotos y contacto con muro de mensajes. El historial local de visitas ("Retomar recorrido") se reemplazó por el muro conectado a Supabase, una fuente dinámica más significativa. Decisiones de Augusto: credencial 3D arrastrable, muro de mensajes como fuente dinámica y pestañas Proyectos, Herramientas, Equipo y Clientes.
 
 La IA asistió en el diseño inicial, los componentes, la redacción y la verificación técnica. La selección de trabajos, la referencia, los datos personales y los criterios de presentación fueron provistos por Augusto. Antes de publicar, revisar permisos, créditos y peso de los medios. Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible. Pendientes: revisión propia del código.

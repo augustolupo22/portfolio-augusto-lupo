@@ -28,30 +28,35 @@ function event(project: Project & { slug: keyof typeof folders }): Project {
 export const projects: Project[] = [
   event({
     slug: 'el-gran-premio-de-la-cocina', title: 'El Gran Premio de la Cocina',
+    client: 'eltrece', role: 'Fotografía y cobertura en video',
     cover: { src: '/project-covers/el-gran-premio-de-la-cocina.webp', alt: 'Los dos conductores en el estudio de El Gran Premio de la Cocina' },
     description: 'Fotografía y cobertura en video del programa de eltrece.',
     categories: ['Fotografía', 'Filmmaking', 'Coberturas y eventos'],
   }),
   event({
     slug: 'por-amor-o-por-dinero', title: 'Por amor o por dinero',
+    client: 'eltrece', role: 'Dirección de streaming · Edición de clips · Edición del backstage de promos',
     cover: { src: '/project-covers/por-amor-o-por-dinero.webp', alt: 'Dos personas frente al croma durante la grabación de la promo' },
     description: 'Dirección de streaming, edición de clips y backstage de las promos de eltrece.',
     categories: ['Dirección de cámaras', 'Edición y postproducción'],
   }),
   event({
     slug: 'dj-fgl', title: 'DJ FGL',
+    client: 'DJ FGL', role: 'Fotografía de backstage',
     cover: { src: '/project-covers/dj-fgl.webp', alt: 'Figura en lo alto de una escalera contra el cielo azul' },
     description: 'Fotografías del rodaje del video de presentación de la fiesta de DJ FGL.',
     categories: ['Fotografía', 'Coberturas y eventos'],
   }),
   event({
     slug: 'fauda', title: 'FAUDA',
+    client: 'FAUDA', role: 'Fotografía del evento',
     cover: { src: '/project-covers/fauda.webp', alt: 'DJ con auriculares frente a la consola de FAUDA' },
     description: 'Cobertura fotográfica de la fiesta electrónica FAUDA.',
     categories: ['Fotografía', 'Coberturas y eventos'],
   }),
   event({
     slug: 'valen-cortes', title: 'Valen Cortes',
+    client: 'Valen Cortes', role: 'Fotografía y video para redes', tools: ['Premiere Pro', 'Lightroom'],
     cover: { src: '/project-covers/valen-cortes.webp', alt: 'Valen Cortes sentada en un café' },
     description: 'Fotografía y video de moda y lifestyle para las redes de Valen Cortes.',
     categories: ['Fotografía', 'Filmmaking'],

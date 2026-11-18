@@ -1,0 +1,227 @@
+---
+// Portfolio con pestañas (Proyectos / Herramientas / Equipo / Clientes).
+// Proyectos además se filtra por disciplina. Sin JavaScript se ven todos los paneles uno debajo del otro.
+import Icon from './Icon.astro';
+import ProjectCover from './ProjectCover.astro';
+import { projects } from '../data/projects';
+import { categories } from '../data/project-types';
+import { profile } from '../data/profile';
+
+const { tools, gear, clients } = profile;
+const tabs = [
+  { id: 'proyectos', label: 'Proyectos', icon: 'grid' },
+  { id: 'herramientas', label: 'Herramientas', icon: 'wrench' },
+  { id: 'equipo', label: 'Equipo', icon: 'camera' },
+  { id: 'clientes', label: 'Clientes', icon: 'users' },
+] as const;
+const counts = Object.fromEntries(categories.map(c => [c, projects.filter(p => p.categories.includes(c)).length]));
+const bySlug = new Map(projects.map(p => [p.slug, p]));
+---
+<section id="portfolio" class="section shell" aria-labelledby="portfolio-title">
+  <p class="eyebrow" data-reveal>02 / Portfolio</p>
+  <h2 id="portfolio-title" class="section-title glitch" data-text="Portfolio">Portfolio</h2>
+  <p class="section-lead" data-reveal>Una selección de historias, producciones y experiencias detrás de cámara.</p>
+
+  <div class="tabs" role="tablist" aria-label="Contenido del portfolio" hidden data-reveal>
+    {tabs.map((tab, i) => (
+      <button type="button" role="tab" id={`tab-${tab.id}`} aria-controls={`panel-${tab.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+        <Icon name={tab.icon} /> {tab.label}
+      </button>
+    ))}
+  </div>
+
+  <!-- Proyectos -->
+  <div class="panel" role="tabpanel" id="panel-proyectos" aria-labelledby="tab-proyectos" data-panel>
+    <h3 class="panel-title">Proyectos</h3>
+    <div class="filters" role="group" aria-label="Filtrar por disciplina" hidden>
+      <button type="button" data-filter="Todos" aria-pressed="true">Todos <span>{projects.length}</span></button>
+      {categories.map(c => <button type="button" data-filter={c} aria-pressed="false">{c} <span>{counts[c]}</span></button>)}
+    </div>
+    <p class="status" role="status" aria-live="polite"></p>
+    <div class="grid">
+      {projects.map((project, index) => (
+        <article class="card card-hover project" data-categories={project.categories.join('|')} style={`view-transition-name: card-${project.slug}`} data-reveal>
+          <a href={`/proyectos/${project.slug}/`} class="project-link" aria-label={`${project.title}: ver detalle`}>
+            <div class="cover"><ProjectCover {project} {index} /></div>
+            <div class="project-body">
+              <ul class="tags" aria-label="Disciplinas">{project.categories.map(c => <li>{c}</li>)}</ul>
+              <h4>{project.title}</h4>
+              <p class="muted">{project.description}</p>
+              <span class="details">Ver detalle <Icon name="arrow-right" /></span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+    <div class="empty card" data-empty hidden>
+      <p>Todavía no hay proyectos publicados en esta disciplina.</p>
+      <button type="button" class="btn" data-reset>Ver todos</button>
+    </div>
+  </div>
+
+  <!-- Herramientas -->
+  <div class="panel" role="tabpanel" id="panel-herramientas" aria-labelledby="tab-herramientas" data-panel>
+    <h3 class="panel-title">Herramientas</h3>
+    <ul class="tiles">
+      {tools.map(tool => (
+        <li class="card card-hover tile">
+          <span class="mono-logo" style={`--c:${tool.color}`} aria-hidden="true">{tool.short}</span>
+          <strong>{tool.name}</strong>
+          <span class="muted">{tool.use}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- Equipo -->
+  <div class="panel" role="tabpanel" id="panel-equipo" aria-labelledby="tab-equipo" data-panel>
+    <h3 class="panel-title">Equipo</h3>
+    {gear.length ? (
+      <ul class="tiles">{gear.map(item => <li class="card card-hover tile"><span class="mono-logo" aria-hidden="true"><Icon name="camera" /></span><strong>{item.name}</strong><span class="muted">{item.type}</span></li>)}</ul>
+    ) : (
+      <div class="empty card"><span class="empty-icon"><Icon name="camera" size="1.6em" /></span><p>Estoy armando el listado del equipo con el que trabajo. Muy pronto vas a poder verlo acá.</p></div>
+    )}
+  </div>
+
+  <!-- Clientes -->
+  <div class="panel" role="tabpanel" id="panel-clientes" aria-labelledby="tab-clientes" data-panel>
+    <h3 class="panel-title">Clientes y medios</h3>
+    <ul class="clients">
+      {clients.map(client => (
+        <li class="card card-hover client">
+          <span class="client-mark" aria-hidden="true">{client.name.replace(/[^A-Za-z0-9]/g, '').slice(0, 2).toUpperCase()}</span>
+          <div>
+            <strong>{client.name}</strong>
+            <span class="muted">{client.type}</span>
+            <p class="client-projects">{client.projects.map(slug => bySlug.get(slug)).filter(Boolean).map(p => <a href={`/proyectos/${p!.slug}/`}>{p!.title}</a>)}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  const root = document.getElementById('portfolio')!;
+  const tablist = root.querySelector<HTMLElement>('[role=tablist]')!;
+  const tabs = Array.from(tablist.querySelectorAll<HTMLButtonElement>('[role=tab]'));
+  const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
+  const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Ejecuta un cambio de contenido con transición si el navegador la soporta.
+  const transition = (change: () => void) => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+    if (motion && doc.startViewTransition) doc.startViewTransition(change);
+    else change();
+  };
+
+  // ---------- Pestañas (patrón ARIA: flechas, Inicio y Fin) ----------
+  const select = (tab: HTMLButtonElement, focus = false) => {
+    transition(() => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')!)!.hidden = !on;
+      }
+    });
+    if (focus) tab.focus();
+    history.replaceState(null, '', `#${tab.id.replace('tab-', '')}`);
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', e => {
+      const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      select(tabs[(next + tabs.length) % tabs.length], true);
+    });
+  });
+  tablist.hidden = false;
+  panels.forEach(p => p.classList.add('is-tabbed'));
+  const fromHash = tabs.find(t => `#${t.id.replace('tab-', '')}` === location.hash);
+  for (const t of tabs) document.getElementById(t.getAttribute('aria-controls')!)!.hidden = t !== (fromHash ?? tabs[0]);
+  if (fromHash) {
+    tabs.forEach(t => { t.setAttribute('aria-selected', String(t === fromHash)); t.tabIndex = t === fromHash ? 0 : -1; });
+    root.scrollIntoView();
+  }
+
+  // ---------- Filtros de proyectos ----------
+  const filters = root.querySelector<HTMLElement>('.filters')!;
+  const buttons = Array.from(filters.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+  const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-categories]'));
+  const status = root.querySelector<HTMLElement>('.status')!;
+  const empty = root.querySelector<HTMLElement>('[data-empty]')!;
+  const apply = (key: string) => {
+    transition(() => {
+      let visible = 0;
+      for (const card of cards) {
+        card.hidden = key !== 'Todos' && !card.dataset.categories!.split('|').includes(key);
+        if (!card.hidden) { visible++; card.classList.add('is-revealed'); }
+      }
+      empty.hidden = visible > 0;
+      buttons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
+      status.textContent = visible ? `${visible} ${visible === 1 ? 'proyecto' : 'proyectos'} en ${key === 'Todos' ? 'todas las disciplinas' : key}` : `Sin proyectos en ${key}`;
+    });
+  };
+  buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.filter!)));
+  root.querySelector('[data-reset]')?.addEventListener('click', () => apply('Todos'));
+  filters.hidden = false;
+</script>
+
+<style>
+  .tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; width: fit-content; max-width: 100%; margin: 2.5rem auto 0; padding: .35rem; border: 1px solid var(--border); border-radius: 1rem; background: rgb(10 15 28 / .6); backdrop-filter: blur(10px); }
+  .tabs button { display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.15rem; border: 0; border-radius: .75rem; background: transparent; color: var(--muted); font-weight: 600; font-size: .92rem; cursor: pointer; transition: color .25s, background-color .3s, box-shadow .3s; }
+  .tabs button:hover { color: var(--text); }
+  .tabs button[aria-selected='true'] { color: white; background: var(--accent-strong); box-shadow: 0 8px 24px -10px rgb(59 130 246 / .9); }
+
+  .panel { margin-top: 2.5rem; }
+  .panel-title { font-size: 1.4rem; margin-bottom: 1.2rem; }
+  .panel.is-tabbed .panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+  .filters:not([hidden]) { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .filters button { display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .9rem; border: 1px solid var(--border); border-radius: 99px; background: rgb(255 255 255 / .02); color: var(--muted); font-size: .85rem; cursor: pointer; transition: all .25s; }
+  .filters button span { font: 500 .72rem var(--mono); opacity: .7; }
+  .filters button:hover { color: var(--text); border-color: var(--border-strong); }
+  .filters button[aria-pressed='true'] { color: var(--text); border-color: rgb(59 130 246 / .6); background: rgb(37 99 235 / .18); }
+  .status { min-height: 1.5em; margin: .9rem 0 1.2rem; font: 500 .78rem var(--mono); color: var(--muted); letter-spacing: .04em; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 1.25rem; }
+  .project { overflow: hidden; padding: 0; }
+  .project-link { display: flex; flex-direction: column; height: 100%; color: inherit; text-decoration: none; }
+  .project-link:focus-visible { outline-offset: -2px; border-radius: var(--radius); }
+  .cover { overflow: hidden; border-bottom: 1px solid var(--border); }
+  .cover :global(img) { transition: transform .9s var(--ease-out), filter .6s; }
+  .project:hover .cover :global(img) { transform: scale(1.06); filter: brightness(1.08); }
+  .project-body { display: flex; flex-direction: column; gap: .55rem; flex: 1; padding: 1.2rem 1.25rem 1.3rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: .35rem; list-style: none; margin: 0; padding: 0; }
+  .tags li { padding: .2rem .55rem; border-radius: 99px; background: rgb(37 99 235 / .14); color: var(--accent-soft); font: 500 .7rem var(--mono); letter-spacing: .03em; }
+  h4 { margin: 0; font-size: 1.35rem; letter-spacing: -.03em; }
+  .project-body .muted { font-size: .93rem; flex: 1; }
+  .details { display: inline-flex; align-items: center; gap: .4rem; width: fit-content; margin-top: .4rem; padding: .5rem .85rem; border-radius: .6rem; border: 1px solid var(--border); font-size: .85rem; font-weight: 600; transition: border-color .25s, gap .35s var(--ease-out), background-color .25s; }
+  .project:hover .details { gap: .7rem; border-color: rgb(59 130 246 / .5); background: rgb(37 99 235 / .12); }
+
+  .empty { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1.6rem; color: var(--muted); }
+  .empty:not([hidden]) { display: flex; }
+  .empty-icon { color: var(--accent-soft); }
+
+  .tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 12.5rem), 1fr)); gap: 1rem; }
+  .tile { display: grid; justify-items: center; gap: .35rem; padding: 1.6rem 1rem; text-align: center; }
+  .tile strong { margin-top: .5rem; }
+  .tile .muted { font-size: .85rem; }
+  .mono-logo { display: grid; place-items: center; width: 3.6rem; height: 3.6rem; border-radius: .9rem; border: 2px solid var(--c, var(--accent)); color: var(--c, var(--accent)); background: color-mix(in srgb, var(--c, #3b82f6) 12%, #0b1220); font: 750 1.35rem var(--sans); letter-spacing: -.02em; box-shadow: 0 10px 30px -14px var(--c, #3b82f6); transition: transform .5s var(--ease-out); }
+  .tile:hover .mono-logo { transform: rotate(-6deg) scale(1.06); }
+
+  .clients { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1rem; }
+  .client { display: flex; gap: 1rem; align-items: flex-start; padding: 1.3rem; }
+  .client strong { display: block; font-size: 1.15rem; }
+  .client .muted { font-size: .88rem; }
+  .client-mark { display: grid; place-items: center; flex: none; width: 3rem; height: 3rem; border-radius: 50%; background: linear-gradient(140deg, #1d4ed8, #0b1220); border: 1px solid rgb(147 197 253 / .35); font: 700 .95rem var(--mono); }
+  .client-projects { display: flex; flex-wrap: wrap; gap: .3rem .8rem; margin-top: .6rem; font-size: .85rem; }
+  .client-projects a { color: var(--accent-soft); }
+
+  @media (max-width: 560px) {
+    .tabs { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+    .tabs button { justify-content: center; }
+  }
+</style>

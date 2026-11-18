@@ -1,0 +1,83 @@
+---
+// Cierre: datos de contacto (email con copia rápida y redes) y el muro de mensajes.
+import Icon from './Icon.astro';
+import Guestbook from './Guestbook.astro';
+import { profile } from '../data/profile';
+
+const { contact } = profile;
+---
+<section id="contacto" class="section shell" aria-labelledby="contact-title">
+  <p class="eyebrow" data-reveal>03 / Contacto</p>
+  <h2 id="contact-title" class="section-title glitch" data-text={contact.title} lang="en">{contact.title}</h2>
+  <p class="section-lead" data-reveal>{contact.subtitle}</p>
+
+  <div class="contact-grid">
+    <div class="contact-side">
+      <div class="card mail-card" data-reveal="left">
+        <span class="mail-icon"><Icon name="mail" /></span>
+        <p class="label">Email</p>
+        <a class="mail" href={`mailto:${contact.email}`}>{contact.email}</a>
+        <div class="mail-actions">
+          <a class="btn btn-primary" href={`mailto:${contact.email}?subject=${encodeURIComponent('Consulta desde tu portfolio')}`}><Icon name="send" /> Escribime</a>
+          <button class="btn" type="button" data-copy={contact.email} hidden><Icon name="copy" /> <span>Copiar email</span></button>
+        </div>
+        <p class="copy-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="find-title" data-reveal>Encontrame en</p>
+      <ul class="socials">
+        {contact.socials.map(s => (
+          <li data-reveal="left">
+            <a class="card card-hover social" href={s.url} target="_blank" rel="noopener">
+              <span class="social-icon"><Icon name={s.icon as 'instagram'} /></span>
+              <span><strong>{s.label}</strong><span class="muted">{s.handle}</span></span>
+              <span class="go"><Icon name="arrow-up-right" /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div data-reveal="right"><Guestbook /></div>
+  </div>
+</section>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const status = document.querySelector<HTMLElement>('.copy-status');
+  if (button && status && navigator.clipboard) {
+    const label = button.querySelector('span')!;
+    button.hidden = false;
+    let timer = 0;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy!);
+        label.textContent = '¡Copiado!';
+        status.textContent = 'Email copiado al portapapeles.';
+      } catch {
+        status.textContent = 'No se pudo copiar. Seleccioná el email y copialo a mano.';
+      }
+      clearTimeout(timer);
+      timer = window.setTimeout(() => { label.textContent = 'Copiar email'; status.textContent = ''; }, 2500);
+    });
+  }
+</script>
+
+<style>
+  .section-title { max-width: 14ch; }
+  .contact-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(1.5rem, 4vw, 2.5rem); margin-top: clamp(2.5rem, 5vw, 3.5rem); align-items: start; }
+  .mail-card { padding: clamp(1.3rem, 3vw, 1.9rem); overflow: hidden; }
+  .mail-card::after { content: ''; position: absolute; inset: auto -20% -60% auto; width: 70%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgb(37 99 235 / .3), transparent 70%); pointer-events: none; }
+  .mail-icon, .social-icon { display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: .8rem; background: rgb(37 99 235 / .14); border: 1px solid rgb(59 130 246 / .3); color: var(--accent-soft); font-size: 1.2rem; }
+  .label { margin-top: 1.2rem; font: 500 .72rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .mail { display: block; margin-top: .3rem; font-size: clamp(1.05rem, 2vw, 1.4rem); font-weight: 650; overflow-wrap: anywhere; text-decoration: none; }
+  .mail:hover { color: var(--accent-soft); }
+  .mail-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.3rem; }
+  .copy-status { min-height: 1.2em; margin-top: .6rem; font-size: .85rem; color: #86efac; }
+  .find-title { margin: 2rem 0 .9rem; font: 600 .78rem var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .socials { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; }
+  .social { display: flex; align-items: center; gap: 1rem; padding: .9rem 1.1rem; text-decoration: none; }
+  .social strong { display: block; } .social .muted { font-size: .88rem; }
+  .go { margin-left: auto; color: var(--muted); transition: color .25s, transform .35s var(--ease-out); }
+  .social:hover .go { color: var(--text); transform: translate(2px, -2px); }
+  @media (max-width: 860px) { .contact-grid { grid-template-columns: 1fr; } }
+</style>

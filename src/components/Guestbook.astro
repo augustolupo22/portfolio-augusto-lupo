@@ -1,0 +1,209 @@
+---
+// Muro de mensajes: los visitantes dejan un saludo que se guarda en Supabase y se lista al instante.
+// Estados: sin configurar, cargando, vacío, con mensajes, error (con reintento), validación,
+// enviando, enviado y espera entre envíos.
+import Icon from './Icon.astro';
+import { LIMITS } from '../lib/guestbook';
+---
+<div class="card guestbook" data-guestbook>
+  <div class="gb-head">
+    <h3>Muro de mensajes</h3>
+    <p class="muted">Dejá un saludo, una idea o una propuesta. Se publica en el muro.</p>
+  </div>
+
+  <form class="gb-form" novalidate>
+    <div class="field">
+      <label for="gb-name">Nombre</label>
+      <input id="gb-name" name="nombre" autocomplete="name" maxlength={LIMITS.name} required aria-describedby="gb-name-error" />
+      <p class="field-error" id="gb-name-error" aria-live="polite"></p>
+    </div>
+    <div class="field">
+      <label for="gb-message">Mensaje</label>
+      <textarea id="gb-message" name="mensaje" rows="3" maxlength={LIMITS.message} required aria-describedby="gb-message-error gb-count"></textarea>
+      <div class="field-foot"><p class="field-error" id="gb-message-error" aria-live="polite"></p><span id="gb-count" class="count">0 / {LIMITS.message}</span></div>
+    </div>
+    <!-- Trampa para bots: los humanos no ven este campo -->
+    <div class="hp" aria-hidden="true"><label>No completar <input name="web" tabindex="-1" autocomplete="off" /></label></div>
+    <button class="btn btn-primary send" type="submit"><Icon name="send" /> <span>Publicar mensaje</span></button>
+    <p class="form-status" role="status" aria-live="polite"></p>
+  </form>
+
+  <div class="gb-list-wrap" aria-busy="true">
+    <p class="list-status" role="status" aria-live="polite"></p>
+    <ul class="gb-skeleton" aria-hidden="true"><li></li><li></li><li></li></ul>
+    <ol class="gb-list" aria-label="Mensajes del muro"></ol>
+    <button type="button" class="btn retry" hidden>Reintentar</button>
+  </div>
+</div>
+
+<script>
+  import { fetchMessages, postMessage, validate, timeAgo, isConfigured, GuestbookError, LIMITS, type Message } from '../lib/guestbook';
+
+  const COOLDOWN = 30_000;
+  const root = document.querySelector<HTMLElement>('[data-guestbook]')!;
+  const form = root.querySelector('form')!;
+  const nameInput = form.querySelector<HTMLInputElement>('#gb-name')!;
+  const msgInput = form.querySelector<HTMLTextAreaElement>('#gb-message')!;
+  const count = form.querySelector<HTMLElement>('#gb-count')!;
+  const send = form.querySelector<HTMLButtonElement>('.send')!;
+  const sendLabel = send.querySelector('span')!;
+  const formStatus = form.querySelector<HTMLElement>('.form-status')!;
+  const wrap = root.querySelector<HTMLElement>('.gb-list-wrap')!;
+  const listStatus = root.querySelector<HTMLElement>('.list-status')!;
+  const skeleton = root.querySelector<HTMLElement>('.gb-skeleton')!;
+  const list = root.querySelector<HTMLOListElement>('.gb-list')!;
+  const retry = root.querySelector<HTMLButtonElement>('.retry')!;
+
+  function render(message: Message, fresh = false) {
+    const li = document.createElement('li');
+    li.className = fresh ? 'gb-item is-new' : 'gb-item';
+    const avatar = document.createElement('span');
+    avatar.className = 'avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = message.nombre.trim().charAt(0).toUpperCase() || '·';
+    const body = document.createElement('div');
+    const head = document.createElement('p');
+    head.className = 'gb-meta';
+    const name = document.createElement('strong');
+    name.textContent = message.nombre; // textContent: el texto del visitante nunca se interpreta como HTML
+    const time = document.createElement('time');
+    time.dateTime = message.created_at;
+    time.textContent = timeAgo(message.created_at);
+    head.append(name, time);
+    const text = document.createElement('p');
+    text.className = 'gb-text';
+    text.textContent = message.mensaje;
+    body.append(head, text);
+    li.append(avatar, body);
+    return li;
+  }
+
+  function setListState(state: 'loading' | 'ready' | 'empty' | 'error' | 'config', detail = '') {
+    wrap.setAttribute('aria-busy', String(state === 'loading'));
+    skeleton.hidden = state !== 'loading';
+    retry.hidden = state !== 'error';
+    wrap.dataset.state = state;
+    listStatus.textContent = {
+      loading: 'Cargando mensajes…',
+      ready: '',
+      empty: 'Todavía no hay mensajes. ¡Dejá el primero!',
+      error: `No se pudieron cargar los mensajes. ${detail}`,
+      config: 'El muro todavía no está conectado a su base de datos. Mientras tanto, podés escribirme por email.',
+    }[state];
+  }
+
+  async function load() {
+    setListState('loading');
+    try {
+      const messages = await fetchMessages();
+      list.replaceChildren(...messages.map(m => render(m)));
+      setListState(messages.length ? 'ready' : 'empty');
+    } catch (error) {
+      setListState('error', error instanceof GuestbookError ? error.message : '');
+    }
+  }
+
+  // ---------- Formulario ----------
+  const lastSent = () => { try { return Number(localStorage.getItem('al:gb-last') || 0); } catch { return 0; } };
+  msgInput.addEventListener('input', () => {
+    count.textContent = `${msgInput.value.length} / ${LIMITS.message}`;
+    count.classList.toggle('is-near', msgInput.value.length > LIMITS.message * 0.9);
+  });
+  for (const input of [nameInput, msgInput]) {
+    input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); document.getElementById(`${input.id}-error`)!.textContent = ''; });
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    formStatus.textContent = '';
+    formStatus.className = 'form-status';
+    if ((form.elements.namedItem('web') as HTMLInputElement).value) return; // bot
+    const nombre = nameInput.value.trim();
+    const mensaje = msgInput.value.trim();
+    const errors = validate(nombre, mensaje);
+    for (const [input, error] of [[nameInput, errors.nombre], [msgInput, errors.mensaje]] as const) {
+      document.getElementById(`${input.id}-error`)!.textContent = error ?? '';
+      if (error) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+    }
+    if (errors.nombre) return nameInput.focus();
+    if (errors.mensaje) return msgInput.focus();
+
+    const wait = COOLDOWN - (Date.now() - lastSent());
+    if (wait > 0) {
+      formStatus.textContent = `Esperá ${Math.ceil(wait / 1000)} s antes de publicar otro mensaje.`;
+      formStatus.classList.add('is-warn');
+      return;
+    }
+
+    send.disabled = true;
+    sendLabel.textContent = 'Publicando…';
+    try {
+      const saved = await postMessage(nombre, mensaje);
+      try { localStorage.setItem('al:gb-last', String(Date.now())); } catch { /* sin almacenamiento */ }
+      list.prepend(render(saved ?? { id: Date.now(), nombre, mensaje, created_at: new Date().toISOString() }, true));
+      setListState('ready');
+      form.reset();
+      count.textContent = `0 / ${LIMITS.message}`;
+      formStatus.textContent = '¡Gracias! Tu mensaje ya está en el muro.';
+      formStatus.classList.add('is-ok');
+    } catch (error) {
+      formStatus.textContent = `No se pudo publicar. ${error instanceof GuestbookError ? error.message : ''} Tu texto sigue en el formulario.`;
+      formStatus.classList.add('is-error');
+    } finally {
+      send.disabled = false;
+      sendLabel.textContent = 'Publicar mensaje';
+    }
+  });
+
+  retry.addEventListener('click', load);
+
+  if (!isConfigured) {
+    setListState('config');
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>('input, textarea, button').forEach(el => { el.disabled = true; });
+  } else {
+    // Carga perezosa: se pide al servidor recién cuando el muro se acerca a la pantalla.
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) { io.disconnect(); load(); }
+    }, { rootMargin: '400px' });
+    io.observe(root);
+  }
+</script>
+
+<style>
+  .guestbook { padding: clamp(1.3rem, 3vw, 1.9rem); }
+  .gb-head h3 { font-size: 1.35rem; }
+  .gb-head p { margin-top: .3rem; font-size: .92rem; }
+  .gb-form { display: grid; gap: .9rem; margin-top: 1.4rem; }
+  label { display: block; margin-bottom: .35rem; font-size: .85rem; font-weight: 600; }
+  input, textarea { width: 100%; padding: .75rem .9rem; border-radius: .7rem; border: 1px solid var(--border-strong); background: rgb(7 11 20 / .7); color: var(--text); resize: vertical; transition: border-color .2s, box-shadow .2s; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgb(59 130 246 / .25); }
+  [aria-invalid='true'] { border-color: #f87171; }
+  :disabled { opacity: .55; cursor: not-allowed; }
+  .field-foot { display: flex; justify-content: space-between; gap: 1rem; }
+  .field-error { min-height: 1.2em; margin-top: .25rem; color: #fca5a5; font-size: .82rem; }
+  .count { margin-top: .25rem; font: 500 .75rem var(--mono); color: var(--muted); }
+  .count.is-near { color: #fbbf24; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .send { justify-content: center; }
+  .form-status { min-height: 1.3em; font-size: .88rem; }
+  .form-status.is-ok { color: #86efac; } .form-status.is-error { color: #fca5a5; } .form-status.is-warn { color: #fbbf24; }
+
+  .gb-list-wrap { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
+  .list-status { color: var(--muted); font-size: .9rem; }
+  .gb-list-wrap[data-state='ready'] .list-status { display: none; }
+  .gb-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; max-height: 26rem; overflow-y: auto; scrollbar-width: thin; }
+  .gb-list :global(.gb-item) { display: flex; gap: .8rem; padding: .85rem .9rem; border-radius: .8rem; background: rgb(255 255 255 / .03); border: 1px solid var(--border); }
+  .gb-list :global(.avatar) { display: grid; place-items: center; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: linear-gradient(140deg, #2563eb, #1e3a8a); font-weight: 700; }
+  .gb-list :global(.gb-meta) { display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: baseline; }
+  .gb-list :global(time) { font: 500 .72rem var(--mono); color: var(--muted); }
+  .gb-list :global(.gb-text) { margin-top: .15rem; color: #cbd5e1; font-size: .93rem; overflow-wrap: anywhere; }
+  .gb-skeleton { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .7rem; }
+  .gb-skeleton li { height: 4rem; border-radius: .8rem; background: linear-gradient(90deg, rgb(255 255 255 / .03), rgb(255 255 255 / .08), rgb(255 255 255 / .03)); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .retry { margin-top: .8rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .gb-list :global(.is-new) { animation: pop-in .7s var(--ease-out); }
+    @keyframes pop-in { from { opacity: 0; transform: translateY(-10px) scale(.98); background: rgb(37 99 235 / .25); } }
+  }
+  @media (prefers-reduced-motion: reduce) { .gb-skeleton li { animation: none; } }
+</style>

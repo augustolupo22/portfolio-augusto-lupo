@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
 import ProjectCover from '../../components/ProjectCover.astro';
 import ProjectGallery from '../../components/ProjectGallery.astro';
 import ProjectVideos from '../../components/ProjectVideos.astro';
@@ -11,51 +12,77 @@ export function getStaticPaths() {
 const { project, index } = Astro.props;
 const previous = projects[(index + projects.length - 1) % projects.length];
 const next = projects[(index + 1) % projects.length];
+const facts = [
+  project.role && { label: 'Rol', value: project.role },
+  project.client && { label: 'Cliente', value: project.client },
+  project.year && { label: 'Año', value: String(project.year) },
+].filter(Boolean) as { label: string; value: string }[];
 ---
-<Layout title={`${project.title} | Augusto Lupo`}>
-  <article class="sheet" data-project-slug={project.slug}>
-    <a href="/#proyectos">← Volver a proyectos</a>
-    <p data-visit-error hidden>No se pudo guardar esta visita en el recorrido de este navegador.</p>
-    <header data-reveal>
-      <p class="folio">ARCHIVO / {String(index + 1).padStart(2, '0')} · {project.categories.join(' / ')}</p>
-      <h1>{project.title}</h1>
-      <ProjectCover {project} {index} hero />
+<Layout title={`${project.title} | Augusto Lupo`} description={project.description} section="portfolio">
+  <article class="shell sheet">
+    <nav class="crumbs" aria-label="Ubicación">
+      <a class="btn back" href="/#portfolio"><Icon name="arrow-left" /> Volver</a>
+      <ol><li><a href="/#portfolio">Proyectos</a></li><li aria-current="page">{project.title}</li></ol>
+    </nav>
+
+    <header class="head">
+      <div class="head-copy">
+        <p class="eyebrow">Proyecto {String(index + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}</p>
+        <h1>{project.title}</h1>
+        <p class="lead">{project.description}</p>
+        {facts.length > 0 && <dl class="facts">{facts.map(f => <div><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>}
+        <ul class="chips" aria-label="Disciplinas">{project.categories.map(c => <li class="chip">{c}</li>)}</ul>
+        {!!project.tools?.length && <>
+          <p class="tools-title"><Icon name="wrench" /> Herramientas</p>
+          <ul class="chips">{project.tools.map(t => <li class="chip">{t}</li>)}</ul>
+        </>}
+      </div>
+      <div class="card head-media" style={`view-transition-name: card-${project.slug}`}><ProjectCover {project} {index} hero /></div>
     </header>
-    <p class="intro" data-reveal>{project.description}</p>
-    {(project.role || project.year || project.tools?.length) && <dl>
-      {project.role && <div><dt>Rol</dt><dd>{project.role}</dd></div>}
-      {project.year && <div><dt>Año</dt><dd>{project.year}</dd></div>}
-      {!!project.tools?.length && <div><dt>Herramientas</dt><dd>{project.tools.join(' · ')}</dd></div>}
-    </dl>}
+
     <ProjectVideos videos={project.videos ?? []} projectTitle={project.title} />
-    <ProjectGallery images={project.images ?? []} />
-    {!!project.links?.length && <section><h2>Enlaces del proyecto</h2><ul>{project.links.map(link => <li><a href={link.href}>{link.label}</a></li>)}</ul></section>}
-    {projects.length > 1 && <nav data-reveal aria-label="Proyectos relacionados">
-      <a href={`/proyectos/${previous.slug}/`}><small>← Anterior</small>{previous.title}</a>
-      <a href={`/proyectos/${next.slug}/`}><small>Siguiente →</small>{next.title}</a>
+    <ProjectGallery images={project.images ?? []} title={project.title} />
+    {!!project.links?.length && <section class="block"><h2>Enlaces</h2><ul>{project.links.map(link => <li><a href={link.href}>{link.label}</a></li>)}</ul></section>}
+
+    {projects.length > 1 && <nav class="pager" aria-label="Otros proyectos">
+      <a class="card card-hover" href={`/proyectos/${previous.slug}/`} rel="prev"><small><Icon name="arrow-left" /> Anterior</small><strong>{previous.title}</strong></a>
+      <a class="card card-hover next" href={`/proyectos/${next.slug}/`} rel="next"><small>Siguiente <Icon name="arrow-right" /></small><strong>{next.title}</strong></a>
     </nav>}
   </article>
 </Layout>
-<script>
-  import { recordVisit } from '../../lib/recorrido';
-  window.addEventListener('pageshow', () => {
-    const sheet = document.querySelector<HTMLElement>('[data-project-slug]');
-    if (!sheet?.dataset.projectSlug) return;
-    const error = sheet.querySelector<HTMLElement>('[data-visit-error]')!;
-    try {
-      recordVisit(sheet.dataset.projectSlug);
-      error.hidden = true;
-    } catch {
-      error.hidden = false;
-    }
-  });
-</script>
+
 <style>
-  .sheet { padding:clamp(2rem,6vw,6rem) max(5%,calc((100% - 68rem)/2)); color:var(--text); background:var(--bg); }
-  header { margin-top:3rem; } .folio,dt,small { font:.8rem/1.5 monospace; color:var(--accent); letter-spacing:.08em; }
-  h1 { max-width:17ch; margin:.2em 0 .5em; font:500 clamp(2.8rem,8vw,7rem)/1 system-ui,sans-serif; letter-spacing:-.065em; }
-  .intro { max-width:50ch; font:1.6rem/1.35 Georgia,serif; }
-  dl,nav { display:flex; flex-wrap:wrap; gap:1.5rem; } dd { margin:.3rem 0; }
-  a { color:inherit; } a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
-  nav { margin-top:3rem; padding-top:1rem; border-top:1px solid #748096; justify-content:space-between; } small { display:block; }
+  .sheet { padding-top: 7rem; padding-bottom: 5rem; }
+  .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .back { padding: .55rem .95rem; font-size: .88rem; }
+  .crumbs ol { display: flex; gap: .5rem; list-style: none; margin: 0; padding: 0; font-size: .9rem; color: var(--muted); }
+  .crumbs li + li::before { content: '/'; margin-right: .5rem; opacity: .5; }
+  .crumbs a:not(.btn) { text-decoration: none; } .crumbs a:not(.btn):hover { color: var(--text); }
+  .crumbs [aria-current] { color: var(--text); }
+
+  .head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-top: clamp(2rem, 5vw, 3.5rem); }
+  h1 { margin-top: .9rem; font-size: clamp(2.8rem, 6.5vw, 5rem); font-weight: 750; }
+  .lead { margin-top: 1.1rem; color: var(--muted); font-size: clamp(1.02rem, 1.4vw, 1.15rem); max-width: 46ch; }
+  .facts { display: grid; gap: .8rem; margin: 1.6rem 0 0; }
+  .facts div { padding-left: .9rem; border-left: 2px solid var(--accent); }
+  .facts dt { font: 500 .72rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { margin: .15rem 0 0; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: .45rem; list-style: none; margin: 1.4rem 0 0; padding: 0; }
+  .tools-title { display: flex; align-items: center; gap: .5rem; margin-top: 1.6rem; font: 600 .78rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-soft); }
+  .tools-title + .chips { margin-top: .7rem; }
+  .head-media { overflow: hidden; padding: 0; }
+  .head-copy > * { animation: rise .9s var(--ease-out) both; }
+  .head-copy > :nth-child(2) { animation-delay: .06s; } .head-copy > :nth-child(3) { animation-delay: .12s; } .head-copy > :nth-child(n+4) { animation-delay: .18s; }
+  .head-media { animation: rise 1s .1s var(--ease-out) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(22px); } }
+  @media (prefers-reduced-motion: reduce) { .head-copy > *, .head-media { animation: none; } }
+
+  .block { margin-top: 4rem; }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: clamp(4rem, 8vw, 6rem); }
+  .pager a { display: grid; gap: .3rem; padding: 1.2rem 1.4rem; text-decoration: none; }
+  .pager small { display: inline-flex; align-items: center; gap: .4rem; font: 500 .75rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .pager strong { font-size: 1.25rem; letter-spacing: -.02em; }
+  .pager .next { text-align: right; justify-items: end; }
+  @media (max-width: 820px) { .head { grid-template-columns: 1fr; } .head-media { order: -1; } }
+  @media (max-width: 520px) { .pager { grid-template-columns: 1fr; } .pager .next { text-align: left; justify-items: start; } }
 </style>

@@ -1,0 +1,147 @@
+---
+// Sobre mí: presentación con retrato, formación, experiencia y números reales del archivo.
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+import { projects } from '../data/projects';
+
+const { name, about, portrait, education, experience } = profile;
+// Las cifras se calculan a partir del catálogo publicado: no hay números cargados a mano.
+const stats = [
+  { value: projects.length, label: 'Proyectos', hint: 'Publicados en el portfolio', icon: 'folder' },
+  { value: projects.reduce((n, p) => n + (p.images?.length ?? 0), 0), label: 'Fotografías', hint: 'En las galerías', icon: 'image' },
+  { value: projects.reduce((n, p) => n + (p.videos?.length ?? 0), 0), label: 'Videos', hint: 'En las fichas de proyecto', icon: 'film' },
+] as const;
+---
+<section id="sobre-mi" class="section shell" aria-labelledby="about-title">
+  <p class="eyebrow" data-reveal>01 / Sobre mí</p>
+  <h2 id="about-title" class="section-title glitch" data-text="Sobre mí">Sobre mí</h2>
+
+  <div class="intro-grid">
+    <div class="intro-name" data-reveal="left">
+      <p class="hi">Hola, soy</p>
+      <p class="big-name"><span class="gradient-text">{name.split(' ')[0]}</span><br />{name.split(' ').slice(1).join(' ')}</p>
+      <p class="tagline">{about.title}</p>
+      <a class="btn btn-primary" href="#contacto">Contactame <Icon name="send" /></a>
+    </div>
+
+    <figure class="portrait" data-reveal="scale">
+      <div class="glow" aria-hidden="true"></div>
+      <img src={portrait.src} alt={portrait.alt} loading="lazy" decoding="async" />
+      <span class="float rec" aria-hidden="true"><i></i> REC</span>
+      <span class="float frame-tag" aria-hidden="true">Foto · Video</span>
+    </figure>
+
+    <div class="intro-text" data-reveal="right">
+      {about.paragraphs.map(p => <p>{p}</p>)}
+      <a class="link-arrow" href="#portfolio">Ver proyectos <Icon name="arrow-up-right" /></a>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div>
+      <h3 data-reveal>Formación</h3>
+      {education.map(item => (
+        <article class="card card-hover entry" data-reveal>
+          <span class="entry-icon"><Icon name="school" /></span>
+          <div><p class="entry-title">{item.institution}</p><p class="muted">{item.title}</p><p class="entry-meta">{item.detail}</p></div>
+        </article>
+      ))}
+    </div>
+    <div>
+      <h3 data-reveal>Experiencia</h3>
+      {experience.map(item => {
+        const Tag = item.project ? 'a' : 'article';
+        return (
+          <Tag class="card card-hover entry" data-reveal href={item.project ? `/proyectos/${item.project}/` : undefined}>
+            <span class="entry-icon"><Icon name={item.place === 'Freelance' ? 'camera' : 'briefcase'} /></span>
+            <div><p class="entry-title">{item.place}</p><p class="muted">{item.role}</p><p class="entry-meta">{item.detail}</p></div>
+            {item.project && <span class="entry-go"><Icon name="arrow-up-right" /></span>}
+          </Tag>
+        );
+      })}
+    </div>
+  </div>
+
+  <ul class="stats" aria-label="El archivo en números">
+    {stats.map(s => (
+      <li class="card card-hover stat" data-reveal>
+        <span class="stat-icon"><Icon name={s.icon} /></span>
+        <span class="stat-value" data-count={s.value}>{s.value}</span>
+        <span class="stat-label">{s.label}</span>
+        <span class="stat-hint">{s.hint}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<script>
+  // Cuenta desde 0 hasta el valor real cuando la tarjeta aparece en pantalla.
+  const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const io = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target as HTMLElement;
+      const end = Number(el.dataset.count);
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 1400);
+        el.textContent = String(Math.round(end * (1 - Math.pow(1 - t, 3))));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      el.textContent = '0';
+      requestAnimationFrame(tick);
+      io.unobserve(el);
+    }), { threshold: 0.6 });
+    counters.forEach(el => io.observe(el));
+  }
+</script>
+
+<style>
+  .intro-grid { display: grid; grid-template-columns: 1fr minmax(0, 1fr) 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; margin-top: clamp(2.5rem, 6vw, 4.5rem); }
+  .hi { color: var(--muted); font-size: 1.1rem; }
+  .big-name { font-size: clamp(2.6rem, 4.6vw, 4rem); font-weight: 750; line-height: 1; letter-spacing: -.04em; margin: .3rem 0 1rem; }
+  .tagline { color: var(--muted); margin-bottom: 1.6rem; max-width: 24ch; }
+  .portrait { position: relative; margin: 0; }
+  .portrait img { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; border-radius: 1.4rem; border: 1px solid var(--border-strong); box-shadow: 0 30px 70px -30px rgb(0 0 0 / .9); }
+  .glow { position: absolute; inset: 12% 8%; border-radius: 50%; background: radial-gradient(circle, rgb(37 99 235 / .55), transparent 70%); filter: blur(40px); }
+  .float { position: absolute; display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .8rem; border-radius: .7rem; border: 1px solid var(--border-strong); background: rgb(10 15 28 / .75); backdrop-filter: blur(8px); font: 600 .72rem var(--mono); letter-spacing: .1em; }
+  .rec { top: 1.2rem; left: -1rem; } .rec i { width: .5rem; height: .5rem; border-radius: 50%; background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+  .frame-tag { right: -1rem; bottom: 2rem; color: var(--accent-soft); }
+  .intro-text p { color: var(--muted); } .intro-text p + p { margin-top: 1rem; }
+  .link-arrow { display: inline-flex; align-items: center; gap: .4rem; margin-top: 1.5rem; padding: .7rem 1rem; border: 1px solid var(--border); border-radius: .8rem; color: var(--accent-soft); text-decoration: none; font-weight: 600; font-size: .92rem; transition: border-color .25s, background-color .25s; }
+  .link-arrow:hover { border-color: rgb(147 197 253 / .5); background: rgb(59 130 246 / .08); }
+
+  .timeline { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); margin-top: clamp(4rem, 8vw, 6rem); }
+  .timeline h3 { font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .entry { display: flex; gap: 1rem; align-items: center; padding: 1.1rem 1.2rem; text-decoration: none; }
+  .entry + .entry { margin-top: .8rem; }
+  .entry-icon, .stat-icon { display: grid; place-items: center; flex: none; width: 2.9rem; height: 2.9rem; border-radius: .8rem; background: rgb(37 99 235 / .14); border: 1px solid rgb(59 130 246 / .3); color: var(--accent-soft); font-size: 1.25rem; }
+  .entry-title { font-weight: 650; font-size: 1.05rem; }
+  .entry-meta { margin-top: .2rem; font: 500 .78rem var(--mono); color: var(--accent-soft); }
+  .entry .muted { font-size: .92rem; }
+  .entry-go { margin-left: auto; color: var(--muted); transition: color .25s, transform .35s var(--ease-out); }
+  a.entry:hover .entry-go { color: var(--text); transform: translate(2px, -2px); }
+
+  .stats { list-style: none; padding: 0; margin: clamp(3rem, 6vw, 4.5rem) 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .stat { display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'icon value' 'label label' 'hint hint'; align-items: center; padding: 1.4rem 1.5rem; overflow: hidden; }
+  .stat::after { content: ''; position: absolute; right: -30%; top: -60%; width: 70%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgb(59 130 246 / .18), transparent 70%); pointer-events: none; }
+  .stat-icon { grid-area: icon; }
+  .stat-value { grid-area: value; justify-self: end; font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 750; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-label { grid-area: label; margin-top: 1.1rem; font: 600 .78rem var(--mono); letter-spacing: .16em; text-transform: uppercase; }
+  .stat-hint { grid-area: hint; color: var(--muted); font-size: .88rem; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .float { animation: bob 6s ease-in-out infinite; } .frame-tag { animation-delay: -3s; }
+    @keyframes bob { 50% { transform: translateY(-10px); } }
+  }
+  @media (max-width: 960px) {
+    .intro-grid { grid-template-columns: 1fr 1fr; }
+    .intro-text { grid-column: 1 / -1; }
+  }
+  @media (max-width: 680px) {
+    .intro-grid, .timeline { grid-template-columns: 1fr; }
+    .portrait { max-width: 22rem; justify-self: center; width: 100%; }
+    .rec { left: .6rem; } .frame-tag { right: .6rem; }
+    .stats { grid-template-columns: 1fr; }
+  }
+</style>
