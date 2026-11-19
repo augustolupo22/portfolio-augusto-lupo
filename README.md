@@ -102,7 +102,9 @@ Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. 
 - Librerías: Astro, React, Three.js, React Three Fiber, Drei, Rapier y MeshLine (licencias MIT / Apache 2.0).
 - Fotos y videos: trabajos de Augusto Lupo. Los derechos de las producciones pertenecen a sus respectivos clientes.
 
-## Bitácora y pendientes
+## Evidencia de proceso
+
+### Bitácora
 
 1. La primera base solo mostraba una página en construcción. Se decidió usar Astro y postergar la identidad hasta contar con información personal.
 2. A partir de la entrevista se incorporaron formación, trabajos independientes y contacto. La referencia visual dio lugar a una credencial sin foto en vez de usar un retrato ajeno.
@@ -116,4 +118,49 @@ Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. 
 
 7. Correcciones de Augusto: todo el sitio en español ("Creemos algo juntos."), experiencia reescrita (eltrece, ShowThisNow y trabajos freelance), formación con la escuela Santísima Virgen Niña, vMix y OBS en herramientas, Behance y LinkedIn en redes, la pestaña Equipo se reemplazó por **Proyectos web** propios, "Prende" en clientes de eltrece, títulos nuevos para DJ FGL y Fauda, nuevo proyecto **Book XV años - Delfina** y una portada de "Por amor o por dinero" donde se ve mejor al conductor. El color de acento pasó de azul a **amarillo**, para seguir la estética de las portadas de su Instagram. La credencial 3D ahora se dibuja en una capa del ancho de la pantalla: al arrastrarla solo se corta en los bordes del navegador, y los clics siguen llegando a los botones que quedan debajo.
 
-La IA asistió en el diseño inicial, los componentes, la redacción y la verificación técnica. La selección de trabajos, la referencia, los datos personales y los criterios de presentación fueron provistos por Augusto. Antes de publicar, revisar permisos, créditos y peso de los medios. Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible. Pendientes: revisión propia del código.
+
+### Problemas encontrados y soluciones
+
+| Problema | Solución |
+|---|---|
+| Material de 2,3 GB y videos de más de 100 MB | Originales fuera del repositorio y `npm run media` (sharp + ffmpeg) |
+| Videos que se veían en negro antes de reproducir | Portada con el primer fotograma con brillo suficiente (`npm run posters`) |
+| Portadas cortadas o con bordes negros | Recortes 16:9 por proyecto con punto de foco (`npm run covers`) |
+| Material privado dentro de `public/` | Solo se publican las carpetas del catálogo |
+| La credencial 3D se cortaba dentro de un recuadro | Lienzo del ancho de la pantalla, sin capturar clics (`pointer-events: none`) y eventos escuchados en la página |
+| La cinta 3D desaparecía con pocos cuadros por segundo | Tope al suavizado de la cinta |
+| Supabase respondía 401 "permission denied" | `grant select, insert` al rol `anon` (documentado) |
+| Menú y redes cortados en celulares angostos | Tamaños reducidos bajo 340 px y fila de íconos que baja de línea |
+| Píldora del menú desalineada al cargar las fuentes | `ResizeObserver` |
+| Texto blanco ilegible sobre el amarillo | Texto oscuro (#111) sobre el acento |
+
+### Pruebas realizadas
+
+- Anchos de 294, 375, 1024, 1280 y 1440 px, sin desplazamiento horizontal.
+- Filtros, pestañas con teclado, visor (flechas, Escape, contador) y copia del email.
+- Muro: estado vacío, validación, publicación, lectura tras recargar y bloqueo de edición y borrado desde afuera.
+- Credencial: arrastre sobre el texto, botones clickeables debajo, versión estática en celular y respaldo ante error.
+- Build de producción y revisión del sitio publicado después de cada despliegue.
+
+El documento técnico de la entrega incluye capturas de cada etapa (primera versión, rediseño azul y versión final amarilla).
+
+## Uso de inteligencia artificial
+
+Usé asistentes de IA para programar: primero un asistente de código basado en un modelo de OpenAI para la base del proyecto, y después Claude Code (Anthropic) para el rediseño y las correcciones. La responsabilidad del resultado, el contenido y las decisiones es mía.
+
+**Para qué tareas la usé:** armar la base de Astro y la estructura de componentes y datos; programar la credencial 3D, las pestañas, el visor y el muro de mensajes; los scripts de compresión de fotos y videos; configurar GitHub, Vercel y Supabase; redactar el README y verificar el sitio en distintos tamaños.
+
+**Qué revisé, adapté o descarté:**
+- Revisé cada versión en el navegador y pedí correcciones concretas: fotos a eliminar, portadas cortadas o con bordes negros, nombres de archivo debajo de los videos, videos en negro, el recorte de mi foto en la credencial, textos en inglés y la credencial que se cortaba al arrastrarla.
+- Adapté la referencia visual a mi identidad: textos, fotos y datos propios, y la paleta amarilla de mis portadas de Instagram en lugar de la azul.
+- Descarté lo que no representaba mi trabajo: la pestaña "Equipo", una tarjeta de "Plataforma de páginas", el enlace al código en "Proyectos web" y el efecto de la referencia que transforma el rostro.
+
+**Problemas o límites detectados:**
+- La IA no ve el resultado como una persona: varios problemas visuales (recortes, contraste, cortes en celular) aparecieron recién al revisar el sitio.
+- Tiende a completar datos, así que se fijó como regla no inventar cifras, fechas, roles ni clientes; por eso las estadísticas se calculan del catálogo.
+- Algunas soluciones necesitaron una segunda vuelta (la cinta 3D con pocos cuadros, el permiso de Supabase, el menú en celulares angostos).
+- No identifica personas en las fotos: el fotograma de portada de "Por amor o por dinero" lo validé yo.
+
+**Decisiones tomadas por mí:** el concepto, la referencia, el público y el tono; qué trabajos, fotos y videos publicar y sus títulos; la credencial 3D arrastrable, el muro como fuente dinámica y las pestañas; mi experiencia, formación, herramientas, redes y clientes; el cambio de azul a amarillo y que todo el sitio esté en español.
+
+> Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible.
