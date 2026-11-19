@@ -60,7 +60,7 @@ export const profile = {
   // Proyectos web propios. La idea a futuro es conectarlos con una plataforma para publicar y vender páginas.
   ownProjects: [
     {
-      name: 'Este portfolio', status: 'Publicado', url: 'https://github.com/augustolupo22/portfolio-augusto-lupo',
+      name: 'Este portfolio', status: 'Publicado',
       description: 'Sitio hecho con Astro, credencial 3D interactiva y muro de mensajes conectado a una base de datos.',
     },
     {
