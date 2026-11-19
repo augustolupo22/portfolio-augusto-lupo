@@ -31,7 +31,7 @@ El código está en `src/lib/guestbook.ts` (acceso a datos, validación, errores
 
 ## Límites y seguridad
 
-- La clave `anon` de Supabase es pública por diseño. Lo que permite hacer la limitan las políticas RLS de la tabla: **solo leer y crear** mensajes; nadie puede editarlos ni borrarlos desde el sitio.
+- La clave *publishable* de Supabase (la antigua `anon`) es pública por diseño. Lo que permite hacer la limitan las políticas RLS de la tabla: **solo leer y crear** mensajes; nadie puede editarlos ni borrarlos desde el sitio.
 - La base de datos rechaza nombres de más de 40 caracteres y mensajes de más de 280, aunque alguien saltee la validación del navegador.
 - El texto de los visitantes se inserta con `textContent`, nunca como HTML, para evitar inyección de código.
 - Un campo trampa oculto descarta envíos automáticos simples. No es una protección fuerte contra spam: la moderación se hace desde el panel de Supabase (borrar filas).
@@ -52,6 +52,9 @@ create table public.mensajes (
 
 alter table public.mensajes enable row level security;
 
+-- Permisos del rol público (sin esto la API responde 401 "permission denied").
+grant select, insert on public.mensajes to anon;
+
 create policy "Cualquiera puede leer mensajes"
   on public.mensajes for select to anon using (true);
 
@@ -60,7 +63,7 @@ create policy "Cualquiera puede dejar un mensaje"
   with check (char_length(btrim(nombre)) between 1 and 40 and char_length(btrim(mensaje)) between 1 and 280);
 ```
 
-3. En **Project Settings → API** copiar la *Project URL* y la clave *anon public*.
+3. En **Project Settings → API** copiar la *Project URL* y la *publishable key*.
 4. Cargarlas como variables de entorno:
    - Local: crear `.env` (copiando `.env.example`) con `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY`.
    - Vercel: **Settings → Environment Variables**, las mismas dos variables, y volver a desplegar.
