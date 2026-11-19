@@ -57,19 +57,15 @@ export const profile = {
     { name: 'IA aplicada a la web', short: 'IA', color: '#FACC15', use: 'Desarrollo web asistido' },
   ] as Tool[],
 
-  // Proyectos web propios. La idea a futuro es conectarlos con una plataforma para publicar y vender páginas.
+  // Proyectos web propios (pestaña "Proyectos web").
   ownProjects: [
     {
       name: 'Este portfolio', status: 'Publicado',
       description: 'Sitio hecho con Astro, credencial 3D interactiva y muro de mensajes conectado a una base de datos.',
     },
     {
-      name: 'Página para streams', status: 'En desarrollo',
-      description: 'Herramientas para transmisiones en vivo: juegos con gráfica propia y recursos para darle dinamismo al stream.',
-    },
-    {
-      name: 'Plataforma de páginas', status: 'Próximamente',
-      description: 'Un espacio para publicar páginas propias, que la gente pueda comprarlas y recibir los pagos online.',
+      name: 'Juegos para producciones en vivo', status: 'En desarrollo',
+      description: 'Una página con juegos para usar en producciones en vivo, que además funciona como panel de control para gestionarlos durante la transmisión.',
     },
   ] as OwnProject[],
 

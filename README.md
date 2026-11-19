@@ -93,7 +93,7 @@ Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. 
 - La escena 3D pesa cerca de 1,1 MB comprimida (Three.js + motor de física). Se descarga solo en escritorio, pero podría aligerarse.
 - El muro no tiene moderación automática: los mensajes se moderan a mano desde Supabase.
 - El Book XV años todavía tiene solo videos: faltan cargar las fotos.
-- La plataforma para publicar y vender páginas es una idea a futuro (figura como "Próximamente").
+- La página de juegos para producciones en vivo todavía está en desarrollo.
 
 ## Créditos
 
