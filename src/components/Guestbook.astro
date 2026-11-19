@@ -175,8 +175,8 @@ import { LIMITS } from '../lib/guestbook';
   .gb-head p { margin-top: .3rem; font-size: .92rem; }
   .gb-form { display: grid; gap: .9rem; margin-top: 1.4rem; }
   label { display: block; margin-bottom: .35rem; font-size: .85rem; font-weight: 600; }
-  input, textarea { width: 100%; padding: .75rem .9rem; border-radius: .7rem; border: 1px solid var(--border-strong); background: rgb(7 11 20 / .7); color: var(--text); resize: vertical; transition: border-color .2s, box-shadow .2s; }
-  input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgb(59 130 246 / .25); }
+  input, textarea { width: 100%; padding: .75rem .9rem; border-radius: .7rem; border: 1px solid var(--border-strong); background: rgb(9 9 11 / .7); color: var(--text); resize: vertical; transition: border-color .2s, box-shadow .2s; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgb(250 204 21 / .25); }
   [aria-invalid='true'] { border-color: #f87171; }
   :disabled { opacity: .55; cursor: not-allowed; }
   .field-foot { display: flex; justify-content: space-between; gap: 1rem; }
@@ -193,7 +193,7 @@ import { LIMITS } from '../lib/guestbook';
   .gb-list-wrap[data-state='ready'] .list-status { display: none; }
   .gb-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .7rem; max-height: 26rem; overflow-y: auto; scrollbar-width: thin; }
   .gb-list :global(.gb-item) { display: flex; gap: .8rem; padding: .85rem .9rem; border-radius: .8rem; background: rgb(255 255 255 / .03); border: 1px solid var(--border); }
-  .gb-list :global(.avatar) { display: grid; place-items: center; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: linear-gradient(140deg, #2563eb, #1e3a8a); font-weight: 700; }
+  .gb-list :global(.avatar) { display: grid; place-items: center; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: linear-gradient(140deg, #FDE047, #CA8A04); font-weight: 700; color: #111; }
   .gb-list :global(.gb-meta) { display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: baseline; }
   .gb-list :global(time) { font: 500 .72rem var(--mono); color: var(--muted); }
   .gb-list :global(.gb-text) { margin-top: .15rem; color: #cbd5e1; font-size: .93rem; overflow-wrap: anywhere; }
@@ -203,7 +203,7 @@ import { LIMITS } from '../lib/guestbook';
   .retry { margin-top: .8rem; }
   @media (prefers-reduced-motion: no-preference) {
     .gb-list :global(.is-new) { animation: pop-in .7s var(--ease-out); }
-    @keyframes pop-in { from { opacity: 0; transform: translateY(-10px) scale(.98); background: rgb(37 99 235 / .25); } }
+    @keyframes pop-in { from { opacity: 0; transform: translateY(-10px) scale(.98); background: rgb(234 179 8 / .25); } }
   }
   @media (prefers-reduced-motion: reduce) { .gb-skeleton li { animation: none; } }
 </style>

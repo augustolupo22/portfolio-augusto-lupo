@@ -16,7 +16,7 @@ const badgeData = {
   focusY: portraitFocus,
 };
 ---
-<section id="inicio" class="hero shell" aria-labelledby="hero-title">
+<section id="inicio" class="hero shell" aria-labelledby="hero-title" data-badge>
   <div class="hero-copy">
     <p class="eyebrow hero-in" style="--i:0">Portfolio audiovisual</p>
     <h1 id="hero-title" class="hero-in" style="--i:1">
@@ -39,8 +39,11 @@ const badgeData = {
     </div>
   </div>
 
-  <div class="badge-stage" data-badge>
+  <!-- Columna derecha: credencial estática (respaldo). La 3D se dibuja en una capa de ancho completo. -->
+  <div class="badge-stage">
     <div class="badge-fallback"><CameraPass {name} {portrait} /></div>
+  </div>
+  <div class="badge-layer">
     <LanyardIsland client:only="react" data={badgeData} />
   </div>
 
@@ -76,18 +79,20 @@ const badgeData = {
   @keyframes blink { 50% { opacity: 0; } }
   .intro { margin-top: 1.2rem; max-width: 48ch; color: var(--muted); font-size: clamp(1rem, 1.25vw, 1.1rem); }
   .actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
-  .find { display: flex; align-items: center; gap: .55rem; margin-top: 2.2rem; }
+  .find { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin-top: 2.2rem; }
   .find span { font: 500 .72rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-right: .4rem; }
   .find a { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: .7rem; border: 1px solid var(--border); background: rgb(255 255 255 / .03); color: var(--muted); font-size: 1.1rem; transition: color .25s, border-color .25s, transform .35s var(--ease-out); }
-  .find a:hover { color: var(--text); border-color: rgb(147 197 253 / .5); transform: translateY(-3px); }
+  .find a:hover { color: var(--text); border-color: rgb(253 230 138 / .5); transform: translateY(-3px); }
 
   .badge-stage { position: relative; height: min(84svh, 760px); min-height: 520px; }
-  .badge-stage :global(astro-island) { position: absolute; inset: 0; }
+  /* Capa 3D: ocupa todo el alto de la portada y todo el ancho de la pantalla (no solo la columna). */
+  .badge-layer { position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 100vw; translate: -50% 0; pointer-events: none; }
+  .badge-layer :global(astro-island) { position: absolute; inset: 0; }
   .badge-fallback { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .6s; }
-  .badge-stage[data-mode='3d'] .badge-fallback { opacity: 0; visibility: hidden; }
+  .hero[data-mode='3d'] .badge-fallback { opacity: 0; visibility: hidden; }
   .badge-fallback :global(.stage) { width: 100%; height: 100%; }
-  .badge-stage :global(.badge-hint) { position: absolute; left: 50%; bottom: .5rem; translate: -50% 0; margin: 0; padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--border); background: rgb(10 15 28 / .7); color: var(--muted); font: 500 .75rem var(--mono); letter-spacing: .08em; white-space: nowrap; pointer-events: none; transition: opacity .6s; animation: hint-in .8s 1.2s var(--ease-out) backwards; }
-  .badge-stage :global(.badge-hint.is-done) { opacity: 0; }
+  .badge-layer :global(.badge-hint) { position: absolute; left: calc(50% + var(--shell) * .26); bottom: 2rem; translate: -50% 0; margin: 0; padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--border); background: rgb(12 12 14 / .7); color: var(--muted); font: 500 .75rem var(--mono); letter-spacing: .08em; white-space: nowrap; pointer-events: none; transition: opacity .6s; animation: hint-in .8s 1.2s var(--ease-out) backwards; }
+  .badge-layer :global(.badge-hint.is-done) { opacity: 0; }
   @keyframes hint-in { from { opacity: 0; translate: -50% 10px; } }
 
   .scroll-cue { position: absolute; left: 50%; bottom: 1.5rem; translate: -50% 0; width: 1.5rem; height: 2.4rem; border: 1.5px solid var(--border-strong); border-radius: 99px; }

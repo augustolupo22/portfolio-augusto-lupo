@@ -31,6 +31,15 @@ function Band({ textures, onGrab }: { textures: Textures; onGrab: () => void }) 
   const fixed = useRef<Body>(null), j1 = useRef<Body>(null), j2 = useRef<Body>(null), j3 = useRef<Body>(null);
   const card = useRef<Body>(null);
   const { width, height } = useThree(state => state.size);
+  const viewport = useThree(state => state.viewport);
+  // El lienzo ocupa todo el ancho de la pantalla: el punto de anclaje se ubica sobre la columna
+  // derecha de la portada (.badge-stage), convertido de píxeles a unidades de la escena.
+  const [anchorX] = useState(() => {
+    const stage = document.querySelector('.badge-stage')?.getBoundingClientRect();
+    if (!stage || !width) return 0;
+    const fraction = (stage.left + stage.width / 2) / innerWidth;
+    return (fraction - 0.5) * viewport.width;
+  });
   const [vec] = useState(() => new THREE.Vector3());
   const [ang] = useState(() => new THREE.Vector3());
   const [rot] = useState(() => new THREE.Vector3());
@@ -50,10 +59,20 @@ function Band({ textures, onGrab }: { textures: Textures; onGrab: () => void }) 
   useSphericalJoint(j3 as RefObject<RapierRigidBody>, card as RefObject<RapierRigidBody>, [[0, 0, 0], [0, 1.3, 0]]);
 
   useEffect(() => {
-    if (!hovered) return;
+    if (!hovered && !dragged) return;
     document.body.style.cursor = dragged ? 'grabbing' : 'grab';
-    return () => { document.body.style.cursor = ''; };
+    // Mientras se arrastra no se selecciona el texto que queda debajo de la credencial.
+    document.body.style.userSelect = dragged ? 'none' : '';
+    return () => { document.body.style.cursor = ''; document.body.style.userSelect = ''; };
   }, [hovered, dragged]);
+
+  // Si se suelta el mouse en cualquier parte de la página, la credencial se libera.
+  useEffect(() => {
+    const release = () => drag(false);
+    window.addEventListener('pointerup', release);
+    window.addEventListener('blur', release);
+    return () => { window.removeEventListener('pointerup', release); window.removeEventListener('blur', release); };
+  }, []);
 
   useFrame((state, delta) => {
     if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current || !band.current) return;
@@ -71,7 +90,7 @@ function Band({ textures, onGrab }: { textures: Textures; onGrab: () => void }) 
       const t = body.translation();
       body.lerped ??= new THREE.Vector3(t.x, t.y, t.z);
       const distance = Math.max(0.1, Math.min(1, body.lerped.distanceTo(t as THREE.Vector3)));
-      body.lerped.lerp(t as THREE.Vector3, delta * (10 + distance * 40));
+      body.lerped.lerp(t as THREE.Vector3, Math.min(1, delta * (10 + distance * 40)));
     }
     curve.points[0].copy(j3.current.translation() as THREE.Vector3);
     curve.points[1].copy(j2.current.lerped!);
@@ -87,7 +106,7 @@ function Band({ textures, onGrab }: { textures: Textures; onGrab: () => void }) 
   const face = { clearcoat: 1, clearcoatRoughness: 0.2, roughness: 0.45, metalness: 0.15, transparent: true, alphaTest: 0.5 };
   return (
     <>
-      <group position={[0, 4, 0]}>
+      <group position={[anchorX, 4, 0]}>
         <RigidBody ref={fixed} {...segment} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segment}><BallCollider args={[0.1]} /></RigidBody>
         <RigidBody position={[1, 0, 0]} ref={j2} {...segment}><BallCollider args={[0.1]} /></RigidBody>
@@ -99,6 +118,7 @@ function Band({ textures, onGrab }: { textures: Textures; onGrab: () => void }) 
             onPointerOut={() => hover(false)}
             onPointerUp={e => { (e.target as Element).releasePointerCapture(e.pointerId); drag(false); }}
             onPointerDown={e => {
+              e.nativeEvent.preventDefault();
               (e.target as Element).setPointerCapture(e.pointerId);
               const t = card.current!.translation();
               drag(new THREE.Vector3().copy(e.point).sub(vec.set(t.x, t.y, t.z)));
@@ -148,6 +168,11 @@ export default function LanyardScene({ data, onReady, onGrab }: { data: BadgeDat
 
   return (
     <Canvas
+      // El lienzo no recibe clics (pointer-events: none) para no tapar los botones de la portada.
+      // Los eventos se escuchan en toda la página y se ubican con coordenadas de pantalla (client).
+      eventSource={document.body}
+      eventPrefix="client"
+      style={{ pointerEvents: 'none' }}
       camera={{ position: [0, 0, 13], fov: 25 }}
       dpr={[1, 2]}
       gl={{ alpha: true, antialias: true }}
@@ -164,7 +189,7 @@ export default function LanyardScene({ data, onReady, onGrab }: { data: BadgeDat
       <Environment blur={0.75}>
         <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
         <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
-        <Lightformer intensity={3} color="#93c5fd" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
+        <Lightformer intensity={3} color="#FDE68A" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
         <Lightformer intensity={10} color="white" position={[-10, 0, 14]} rotation={[0, Math.PI / 2, Math.PI / 3]} scale={[100, 10, 1]} />
       </Environment>
     </Canvas>

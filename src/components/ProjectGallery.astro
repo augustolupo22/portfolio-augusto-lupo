@@ -83,14 +83,14 @@ const { images, title } = Astro.props;
   .shot img { display: block; width: 100%; height: auto; transition: transform .8s var(--ease-out), filter .5s; }
   .shot:hover img { transform: scale(1.04); filter: brightness(1.08); }
 
-  .viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(3 6 12 / .94); color: var(--text); }
+  .viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgb(5 5 6 / .94); color: var(--text); }
   .viewer::backdrop { background: rgb(0 0 0 / .6); backdrop-filter: blur(6px); }
   .viewer figure { display: grid; place-items: center; height: 100%; margin: 0; padding: 4rem 4.5rem 3rem; }
   .viewer img { max-width: 100%; max-height: calc(100dvh - 7rem); object-fit: contain; border-radius: .5rem; opacity: 0; transform: scale(.98); transition: opacity .35s, transform .5s var(--ease-out); }
   .viewer img.is-in { opacity: 1; transform: none; }
   .viewer figcaption { position: absolute; bottom: 1.1rem; left: 50%; translate: -50% 0; font: 500 .8rem var(--mono); color: var(--muted); }
-  .v-btn { position: absolute; display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; border: 1px solid var(--border-strong); background: rgb(17 24 39 / .8); color: var(--text); font-size: 1.5rem; line-height: 1; cursor: pointer; transition: background-color .2s, border-color .2s; }
-  .v-btn:hover { background: var(--accent-strong); border-color: transparent; }
+  .v-btn { position: absolute; display: grid; place-items: center; width: 2.9rem; height: 2.9rem; border-radius: 50%; border: 1px solid var(--border-strong); background: rgb(21 21 23 / .8); color: var(--text); font-size: 1.5rem; line-height: 1; cursor: pointer; transition: background-color .2s, border-color .2s; }
+  .v-btn:hover { background: var(--accent-strong); border-color: transparent; color: #111; }
   .v-close { top: 1rem; right: 1rem; font-size: 1rem; }
   .v-prev { left: 1rem; top: 50%; translate: 0 -50%; } .v-next { right: 1rem; top: 50%; translate: 0 -50%; }
   @media (max-width: 600px) { .viewer figure { padding: 3.5rem .5rem 3rem; } .v-prev, .v-next { top: auto; bottom: .6rem; translate: none; } }

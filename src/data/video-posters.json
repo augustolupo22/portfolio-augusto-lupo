@@ -63,5 +63,15 @@
     "poster": "/video-posters/valen-cortes/VIDEO%20TEATRO%20COLON%20V2.mp4.webp",
     "width": 1080,
     "height": 1920
+  },
+  "Book xv - Delfi/VIDEO FINAL PANTALLA.mp4": {
+    "poster": "/video-posters/book-xv-delfina/VIDEO%20FINAL%20PANTALLA.mp4.webp",
+    "width": 1920,
+    "height": 1080
+  },
+  "Book xv - Delfi/XV DELFI V1.mp4": {
+    "poster": "/video-posters/book-xv-delfina/XV%20DELFI%20V1.mp4.webp",
+    "width": 1920,
+    "height": 1080
   }
 }

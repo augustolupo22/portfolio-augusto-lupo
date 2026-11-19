@@ -93,7 +93,7 @@ export async function drawFront(data: BadgeData) {
   roundRect(ctx, px, py, pw, ph, 22);
   ctx.save();
   ctx.clip();
-  ctx.fillStyle = '#112e50';
+  ctx.fillStyle = '#1c1708';
   ctx.fillRect(px, py, pw, ph);
   if (data.portrait) {
     try {
@@ -106,8 +106,8 @@ export async function drawFront(data: BadgeData) {
     } catch { /* sin retrato: queda la placa azul */ }
   }
   const shade = ctx.createLinearGradient(0, py + ph * 0.6, 0, py + ph);
-  shade.addColorStop(0, 'rgba(7,11,20,0)');
-  shade.addColorStop(1, 'rgba(7,11,20,.55)');
+  shade.addColorStop(0, 'rgba(9,9,11,0)');
+  shade.addColorStop(1, 'rgba(9,9,11,.55)');
   ctx.fillStyle = shade;
   ctx.fillRect(px, py, pw, ph);
   ctx.restore();
@@ -119,7 +119,7 @@ export async function drawFront(data: BadgeData) {
   ctx.fillStyle = '#0f1b2d';
   ctx.font = `750 86px ${SANS}`;
   ctx.fillText(data.name, 48, 874);
-  ctx.fillStyle = '#1d4ed8';
+  ctx.fillStyle = '#A16207';
   ctx.font = `600 26px ${MONO}`;
   ctx.fillText(data.role.toUpperCase(), 52, 922);
 
@@ -141,11 +141,11 @@ export async function drawBack(data: BadgeData) {
   roundRect(ctx, 0, 0, w, h, 52);
   ctx.save();
   ctx.clip();
-  ctx.fillStyle = '#0b1220';
+  ctx.fillStyle = '#0c0c0e';
   ctx.fillRect(0, 0, w, h);
   const glow = ctx.createRadialGradient(w * 0.5, h * 0.42, 20, w * 0.5, h * 0.42, w * 0.75);
-  glow.addColorStop(0, 'rgba(37,99,235,.55)');
-  glow.addColorStop(1, 'rgba(37,99,235,0)');
+  glow.addColorStop(0, 'rgba(234,179,8,.55)');
+  glow.addColorStop(1, 'rgba(234,179,8,0)');
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = 'rgba(148,163,184,.12)';
@@ -160,10 +160,10 @@ export async function drawBack(data: BadgeData) {
   ctx.fillStyle = '#f8fafc';
   ctx.font = `800 300px ${SANS}`;
   ctx.fillText('AL', w / 2, h * 0.52);
-  ctx.fillStyle = '#93c5fd';
+  ctx.fillStyle = '#FDE68A';
   ctx.font = `500 30px ${MONO}`;
   ctx.fillText(data.handle, w / 2, h * 0.64);
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#A1A1AA';
   ctx.font = `500 22px ${MONO}`;
   ctx.fillText(data.site, w / 2, h * 0.69);
   barcode(ctx, w / 2 - 150, h - 150, 300, 60, '#e2e8f0');
@@ -181,11 +181,11 @@ export async function drawBand(text: string) {
   const step = Math.ceil(probe.measureText(label).width);
   const canvas = Object.assign(document.createElement('canvas'), { width: step * 2, height: 128 });
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#1e3a8a';
+  ctx.fillStyle = '#422006';
   ctx.fillRect(0, 0, canvas.width, 128);
-  ctx.fillStyle = '#2563eb';
+  ctx.fillStyle = '#EAB308';
   ctx.fillRect(0, 14, canvas.width, 100);
-  ctx.fillStyle = '#f8fafc';
+  ctx.fillStyle = '#111111';
   ctx.font = font;
   ctx.textBaseline = 'middle';
   ctx.fillText(label, 0, 66);

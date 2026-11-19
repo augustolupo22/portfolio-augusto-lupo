@@ -12,10 +12,10 @@ const { name, portrait } = Astro.props;
         <svg viewBox="0 0 260 200" role="img" aria-label="Plano frontal de una cámara con su diafragma">
           <g fill="none" stroke="currentColor">
             <path opacity=".35" stroke-dasharray="3 4" d="M0 105h260M143 0v200" />
-            <path fill="#173457" d="M29 71h17v-8h40l12-20h65l13 20h42l8 8v75l-6 7H33l-6-7V77Z" />
+            <path fill="#2a2208" d="M29 71h17v-8h40l12-20h65l13 20h42l8 8v75l-6 7H33l-6-7V77Z" />
             <path d="M32 81h51m93 0h44M34 141h52m95 0h39M103 49h53l6 10H98ZM46 63v-9h26v9m108 0v-8h24v8" />
             <rect x="40" y="86" width="37" height="46" rx="5" stroke-dasharray="2 2" />
-            <circle cx="141" cy="105" r="51" fill="#112b49"/><circle cx="141" cy="105" r="47" stroke-width="3" stroke-dasharray="1 3"/><circle cx="141" cy="105" r="41"/><circle cx="141" cy="105" r="33"/>
+            <circle cx="141" cy="105" r="51" fill="#1f1a08"/><circle cx="141" cy="105" r="47" stroke-width="3" stroke-dasharray="1 3"/><circle cx="141" cy="105" r="41"/><circle cx="141" cy="105" r="33"/>
             {Array.from({length:6}, (_,i) => <path transform={`rotate(${i*60} 141 105)`} d="M141 72 157 97 156 113" />)}
             <path d="M26 160v8h202v-8M26 164v8m202-8v8M12 12h13m-13 0v13m236 150v13h-13" />
           </g>
@@ -38,12 +38,12 @@ const { name, portrait } = Astro.props;
   }
 </script>
 <style>
-  .stage{position:relative;isolation:isolate;display:grid;place-items:center;min-height:480px;overflow:hidden;background:radial-gradient(ellipse at 50% 54%,#34639744,transparent 65%)}
-  .stage::before{content:'';position:absolute;z-index:-1;width:87%;aspect-ratio:1;border:1px solid #869dc22b;border-radius:50%;box-shadow:0 0 0 32px #94b5ea05,0 0 0 33px #94b5ea10}
+  .stage{position:relative;isolation:isolate;display:grid;place-items:center;min-height:480px;overflow:hidden;background:radial-gradient(ellipse at 50% 54%,#eab30833,transparent 65%)}
+  .stage::before{content:'';position:absolute;z-index:-1;width:87%;aspect-ratio:1;border:1px solid #eab3082b;border-radius:50%;box-shadow:0 0 0 32px #facc1505,0 0 0 33px #facc1510}
   .rig{margin-top:45px}.pass{position:relative;width:min(235px,65vw);padding:7px;border-radius:15px;border:1px solid #cbd9e9;background:linear-gradient(130deg,#fafaf3,#bacadd);color:#122338;box-shadow:7px 20px 28px #0005,inset 0 0 0 3px #fff7;transform:rotate(6deg);transform-origin:center top}
-  .pass::before{content:'';position:absolute;left:calc(50% - 10px);bottom:calc(100% + 16px);height:330px;width:20px;background:repeating-linear-gradient(45deg,#1e4479 0 2px,#315487 2px 4px);border-inline:2px solid #7794b5}
+  .pass::before{content:'';position:absolute;left:calc(50% - 10px);bottom:calc(100% + 16px);height:330px;width:20px;background:repeating-linear-gradient(45deg,#a16207 0 2px,#eab308 2px 4px);border-inline:2px solid #ca8a04}
   .clip{position:absolute;left:calc(50% - 8px);top:-26px;width:16px;height:37px;border:4px solid #9baec2;box-shadow:inset 1px 1px 1px white,1px 1px 2px #182b44;border-radius:8px;z-index:1}
-  .top,.foot,small{font:10px/1.4 monospace;letter-spacing:.08em}.top,.foot{display:flex;align-items:center;justify-content:space-between}.top{padding:16px 8px 9px;text-transform:uppercase}.top b{font:bold 20px Arial}.plate{color:#c1defc;background-color:#112e50;background-image:linear-gradient(#c8e3ff0c 1px,transparent 1px),linear-gradient(90deg,#c8e3ff0c 1px,transparent 1px);background-size:10px 10px;border-radius:4px;overflow:hidden}.plate svg,.plate img{display:block;width:100%;aspect-ratio:13/10;object-fit:cover}.info{padding:13px 9px 7px}.info strong{display:block;font:600 29px/1.3 system-ui;letter-spacing:-.06em}.foot{margin-top:12px;border-top:1px solid #708397;padding-top:9px}.foot i{width:45px;height:15px;background:repeating-linear-gradient(90deg,#192e44 0 2px,transparent 2px 3px,#192e44 3px 4px,transparent 4px 6px)}
+  .top,.foot,small{font:10px/1.4 monospace;letter-spacing:.08em}.top,.foot{display:flex;align-items:center;justify-content:space-between}.top{padding:16px 8px 9px;text-transform:uppercase}.top b{font:bold 20px Arial}.plate{color:#FDE68A;background-color:#1c1708;background-image:linear-gradient(#fff3c40c 1px,transparent 1px),linear-gradient(90deg,#fff3c40c 1px,transparent 1px);background-size:10px 10px;border-radius:4px;overflow:hidden}.plate svg,.plate img{display:block;width:100%;aspect-ratio:13/10;object-fit:cover}.info{padding:13px 9px 7px}.info strong{display:block;font:600 29px/1.3 system-ui;letter-spacing:-.06em}.foot{margin-top:12px;border-top:1px solid #708397;padding-top:9px}.foot i{width:45px;height:15px;background:repeating-linear-gradient(90deg,#192e44 0 2px,transparent 2px 3px,#192e44 3px 4px,transparent 4px 6px)}
   .plate img{object-position:50% 27%}
   @media(prefers-reduced-motion:no-preference){.rig{transform:translate(var(--x,0),var(--y,0));transition:transform .25s ease-out}.pass{animation:settle 1.15s var(--ease-out) both}@keyframes settle{from{transform:rotate(2deg)}50%{transform:rotate(7deg)}}}
 </style>

@@ -36,22 +36,22 @@ export const projects: Project[] = [
   event({
     slug: 'por-amor-o-por-dinero', title: 'Por amor o por dinero',
     client: 'eltrece', role: 'Dirección de streaming · Edición de clips · Edición del backstage de promos',
-    cover: { src: '/project-covers/por-amor-o-por-dinero.webp', alt: 'Dos personas frente al croma durante la grabación de la promo' },
+    cover: { src: '/project-covers/por-amor-o-por-dinero.webp', alt: 'El conductor sonriendo frente al croma durante la grabación de la promo' },
     description: 'Dirección de streaming, edición de clips y backstage de las promos de eltrece.',
     categories: ['Dirección de cámaras', 'Edición y postproducción'],
   }),
   event({
-    slug: 'dj-fgl', title: 'DJ FGL',
+    slug: 'dj-fgl', title: 'Dj - Fernando Goncalves Lema (FGL)',
     client: 'DJ FGL', role: 'Fotografía de backstage',
     cover: { src: '/project-covers/dj-fgl.webp', alt: 'Figura en lo alto de una escalera contra el cielo azul' },
-    description: 'Fotografías del rodaje del video de presentación de la fiesta de DJ FGL.',
+    description: 'Fotografías del rodaje del video de presentación de la fiesta de Fernando Goncalves Lema (FGL).',
     categories: ['Fotografía', 'Coberturas y eventos'],
   }),
   event({
-    slug: 'fauda', title: 'FAUDA',
-    client: 'FAUDA', role: 'Fotografía del evento',
-    cover: { src: '/project-covers/fauda.webp', alt: 'DJ con auriculares frente a la consola de FAUDA' },
-    description: 'Cobertura fotográfica de la fiesta electrónica FAUDA.',
+    slug: 'fauda', title: 'Fiesta Fauda - Fiesta electrónica',
+    client: 'Fiesta Fauda', role: 'Fotografía del evento',
+    cover: { src: '/project-covers/fauda.webp', alt: 'DJ con auriculares frente a la consola en la Fiesta Fauda' },
+    description: 'Cobertura fotográfica de la fiesta electrónica Fauda.',
     categories: ['Fotografía', 'Coberturas y eventos'],
   }),
   event({
@@ -60,5 +60,12 @@ export const projects: Project[] = [
     cover: { src: '/project-covers/valen-cortes.webp', alt: 'Valen Cortes sentada en un café' },
     description: 'Fotografía y video de moda y lifestyle para las redes de Valen Cortes.',
     categories: ['Fotografía', 'Filmmaking'],
+  }),
+  event({
+    slug: 'book-xv-delfina', title: 'Book XV años - Delfina',
+    role: 'Fotografía y video', tools: ['Premiere Pro', 'Lightroom'],
+    cover: { src: '/project-covers/book-xv-delfina.webp', alt: 'La cumpleañera en un campo de flores amarillas' },
+    description: 'Fotos y videos para la cumpleañera, incluido el video de entrada para su fiesta de quince.',
+    categories: ['Fotografía', 'Filmmaking', 'Edición y postproducción'],
   }),
 ];

@@ -34,7 +34,7 @@ export function startStarfield(canvas: HTMLCanvasElement) {
       const twinkle = still.matches ? 1 : 0.65 + 0.35 * Math.sin(time / 1000 * s.speed + s.phase);
       const y = ((s.y - scroll * s.depth) % h + h) % h;
       ctx!.globalAlpha = s.a * twinkle;
-      ctx!.fillStyle = s.r > 1.2 ? '#bfdbfe' : '#e2e8f0';
+      ctx!.fillStyle = s.r > 1.2 ? '#FEF3C7' : '#e2e8f0';
       ctx!.beginPath();
       ctx!.arc(s.x, y, s.r, 0, Math.PI * 2);
       ctx!.fill();
@@ -45,8 +45,8 @@ export function startStarfield(canvas: HTMLCanvasElement) {
       }
       if (meteor) {
         const tail = ctx!.createLinearGradient(meteor.x, meteor.y, meteor.x - meteor.vx * 14, meteor.y - meteor.vy * 14);
-        tail.addColorStop(0, `rgba(191,219,254,${meteor.life})`);
-        tail.addColorStop(1, 'rgba(191,219,254,0)');
+        tail.addColorStop(0, `rgba(254,243,199,${meteor.life})`);
+        tail.addColorStop(1, 'rgba(254,243,199,0)');
         ctx!.globalAlpha = 1;
         ctx!.strokeStyle = tail;
         ctx!.lineWidth = 1.4;

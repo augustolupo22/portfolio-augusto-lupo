@@ -36,9 +36,11 @@ function video(input, output) {
   const rotation = stream.side_data_list?.find(d => d.rotation != null)?.rotation ?? stream.tags?.rotate ?? 0;
   if (Math.abs(rotation) % 180 === 90) [width, height] = [height, width];
   const scale = width >= height ? `-2:${Math.min(VIDEO_SHORT_SIDE, height)}` : `${Math.min(VIDEO_SHORT_SIDE, width)}:-2`;
+  // Videos largos (más de 2 minutos): menos bitrate para que el archivo quede por debajo de ~50 MB.
+  const long = Number(stream.duration) > 120;
   execFileSync(ffmpegPath, ['-v', 'error', '-nostdin', '-y', '-i', input, '-map', '0:v:0', '-map', '0:a:0?',
-    '-vf', `scale=${scale}`, '-c:v', 'libx264', '-preset', 'medium', '-crf', '25',
-    '-maxrate', '3M', '-bufsize', '6M', '-pix_fmt', 'yuv420p',
+    '-vf', `scale=${scale}`, '-c:v', 'libx264', '-preset', 'medium', '-crf', long ? '27' : '25',
+    '-maxrate', long ? '1.4M' : '3M', '-bufsize', long ? '2.8M' : '6M', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', output]);
 }
 

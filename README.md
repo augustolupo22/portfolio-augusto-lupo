@@ -24,7 +24,7 @@ Para que funcione el muro de mensajes en local, copiar `.env.example` como `.env
 
 ## Edición de contenido
 
-- `src/data/profile.ts`: presentación, roles, formación, experiencia, herramientas, equipo, clientes y contacto. Agregar Behance o LinkedIn a `contact.socials` solo con su URL confirmada. Las estadísticas de "Sobre mí" se calculan solas a partir del catálogo.
+- `src/data/profile.ts`: presentación, roles, formación, experiencia, herramientas, proyectos web propios, clientes y contacto (con Instagram, TikTok, Behance y LinkedIn). Las estadísticas de "Sobre mí" se calculan solas a partir del catálogo.
 - Retrato: `profile.portrait` (foto) y `profile.portraitFocus` (punto de foco vertical al recortarla en la credencial).
 - `src/data/projects.ts`: un registro por trabajo. El `slug` debe ser único; el orden determina los enlaces anterior/siguiente. Los formatos de imagen, video, enlace y categorías están definidos en `src/data/project-types.ts`. No completar años ni roles por aproximación.
 - Escribir el texto alternativo de cada imagen y agregar subtítulos cuando el audio sea necesario. Los cambios en el catálogo requieren volver a construir y publicar.
@@ -62,7 +62,7 @@ Versionar los WebP de `public/video-posters/` junto con `src/data/video-posters.
 |---|---|
 | `lanyard/LanyardIsland.tsx` + `LanyardScene.tsx` + `textures.ts` | Credencial 3D con física: tres tramos de cinta unidos por *rope joints* sostienen una tarjeta rígida que se puede arrastrar. Las caras de la tarjeta y la cinta se dibujan en `<canvas>` con el retrato y los datos de `profile.ts` (no hay modelo 3D externo). Decide si el dispositivo soporta 3D; si no, deja la versión estática. |
 | `CameraPass.astro` | Credencial estática (HTML/CSS): versión sin JavaScript, para celulares y para quien prefiere menos movimiento. |
-| `PortfolioTabs.astro` | Pestañas accesibles (patrón ARIA, flechas del teclado) entre Proyectos, Herramientas, Equipo y Clientes; filtros de proyectos por disciplina con conteo, anuncio del resultado para lectores de pantalla, estado vacío y transiciones (View Transitions API). |
+| `PortfolioTabs.astro` | Pestañas accesibles (patrón ARIA, flechas del teclado) entre Proyectos, Herramientas, Proyectos web y Clientes; filtros de proyectos por disciplina con conteo, anuncio del resultado para lectores de pantalla, estado vacío y transiciones (View Transitions API). |
 | `Guestbook.astro` + `lib/guestbook.ts` | Muro de mensajes: lectura y escritura en Supabase con todos sus estados. |
 | `ProjectGallery.astro` | Galería en columnas con visor a pantalla completa (`<dialog>`): flechas, Escape, deslizar en celular, contador y devolución del foco. |
 | `Hero.astro`, `About.astro`, `Contact.astro` | Secciones de la portada. `About` calcula sus cifras desde el catálogo (no hay números escritos a mano). |
@@ -86,14 +86,14 @@ Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. 
 - Teclado: enlace "Saltar al contenido", foco visible en todos los controles, pestañas con flechas, visor de fotos con Escape y devolución del foco.
 - Lectores de pantalla: los roles que se "escriben" solos tienen su texto completo oculto visualmente; filtros y muro anuncian cambios con `role="status"`; las imágenes tienen texto alternativo; la credencial 3D es decorativa (`aria-hidden`) y su información está en el texto de la portada.
 - `prefers-reduced-motion`: sin 3D, sin estrellas animadas, sin escritura automática ni apariciones.
-- Contraste: texto principal #F8FAFC y secundario #94A3B8 sobre fondo #070B14.
+- Contraste: texto principal #F8FAFC y secundario #A1A1AA sobre fondo #09090B. Sobre el amarillo de acento (#EAB308) el texto es oscuro (#111).
 
 ## Limitaciones conocidas y mejoras posibles
 
 - La escena 3D pesa cerca de 1,1 MB comprimida (Three.js + motor de física). Se descarga solo en escritorio, pero podría aligerarse.
 - El muro no tiene moderación automática: los mensajes se moderan a mano desde Supabase.
-- La pestaña **Equipo** está vacía hasta cargar el listado real.
-- Faltan los enlaces de Behance y LinkedIn.
+- El Book XV años todavía tiene solo videos: faltan cargar las fotos.
+- La plataforma para publicar y vender páginas es una idea a futuro (figura como "Próximamente").
 
 ## Créditos
 
@@ -113,5 +113,7 @@ Los visitantes dejan un mensaje que se guarda en Supabase y aparece en el muro. 
 5. Al preparar el repositorio, el material original pesaba 2,3 GB y doce videos superaban los 50 MB (GitHub rechaza archivos de más de 100 MB). Se separaron los originales en `media-originales/` (fuera del repositorio) y se agregó `npm run media`, que genera fotos de hasta 2400 px y videos 720p H.264. El material publicado bajó a 105 MB y el video más pesado a 11 MB. Así el book de XV, que no forma parte del catálogo, ya no se copia al despliegue.
 
 6. Se tomó como referencia el video de un portfolio con credencial colgante y se rearmó el sitio con esa estructura: intro con porcentaje real, credencial 3D con física (React Three Fiber + Rapier), "Sobre mí" con formación, experiencia y cifras del catálogo, portfolio con pestañas y filtros, fichas con visor de fotos y contacto con muro de mensajes. El historial local de visitas ("Retomar recorrido") se reemplazó por el muro conectado a Supabase, una fuente dinámica más significativa. Decisiones de Augusto: credencial 3D arrastrable, muro de mensajes como fuente dinámica y pestañas Proyectos, Herramientas, Equipo y Clientes.
+
+7. Correcciones de Augusto: todo el sitio en español ("Creemos algo juntos."), experiencia reescrita (eltrece, ShowThisNow y trabajos freelance), formación con la escuela Santísima Virgen Niña, vMix y OBS en herramientas, Behance y LinkedIn en redes, la pestaña Equipo se reemplazó por **Proyectos web** propios, "Prende" en clientes de eltrece, títulos nuevos para DJ FGL y Fauda, nuevo proyecto **Book XV años - Delfina** y una portada de "Por amor o por dinero" donde se ve mejor al conductor. El color de acento pasó de azul a **amarillo**, para seguir la estética de las portadas de su Instagram. La credencial 3D ahora se dibuja en una capa del ancho de la pantalla: al arrastrarla solo se corta en los bordes del navegador, y los clics siguen llegando a los botones que quedan debajo.
 
 La IA asistió en el diseño inicial, los componentes, la redacción y la verificación técnica. La selección de trabajos, la referencia, los datos personales y los criterios de presentación fueron provistos por Augusto. Antes de publicar, revisar permisos, créditos y peso de los medios. Astro copia todo `public/` al despliegue, incluso carpetas no enlazadas: mantener fuera de `public/` cualquier material que no deba quedar accesible. Pendientes: revisión propia del código.
