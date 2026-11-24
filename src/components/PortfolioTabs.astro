@@ -86,7 +86,9 @@ const bySlug = new Map(projects.map(p => [p.slug, p]));
           </div>
           <strong>{item.name}</strong>
           <p class="muted">{item.description}</p>
-          {item.url && <a class="own-link" href={item.url} target="_blank" rel="noopener">Ver código <Icon name="arrow-up-right" /></a>}
+          {item.url && (item.url.startsWith('/')
+            ? <a class="own-link" href={item.url}>{item.linkLabel ?? 'Ver más'} <Icon name="arrow-right" /></a>
+            : <a class="own-link" href={item.url} target="_blank" rel="noopener">{item.linkLabel ?? 'Ver código'} <Icon name="arrow-up-right" /></a>)}
         </li>
       ))}
     </ul>

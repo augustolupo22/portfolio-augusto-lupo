@@ -1,0 +1,418 @@
+---
+// Playlayer: página de producto dentro del portfolio. Demo jugable de Letra a Letra, juegos,
+// compatibilidad, cómo se recibe al comprarlo y compra (datos en src/data/playlayer.ts).
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { playlayer, games } from '../data/playlayer';
+
+const buyUrl = playlayer.checkoutUrl || playlayer.contactUrl;
+const buyLabel = playlayer.checkoutUrl ? 'Comprar Playlayer' : 'Quiero Playlayer';
+const buyExternal = { target: '_blank', rel: 'noopener' };
+
+const features = [
+  { title: 'Tu marca en todos los juegos', text: 'Importás el manual de marca (PDF, SVG o imagen) y Playlayer toma sus colores y tipografías. También se ajusta a mano: color, cajas oscuras o claras, esquinas y tipografías propias.' },
+  { title: 'Participantes desde el celular', text: 'En Pulsadores y Paletas cada participante entra escaneando un QR, sin instalar nada. Si la red está cerrada, se activa un acceso por internet.' },
+  { title: 'Varios jugadores', text: 'Letra a Letra con una rueda por jugador, Completá con aciertos y errores, y Ahorcado, Pistas e Imagen por turnos con marcador al aire.' },
+  { title: 'Grabá la gráfica en .mov', text: 'Graba los overlays con transparencia (QuickTime Animation) para armar clips verticales en Premiere, After Effects, DaVinci o Final Cut.' },
+  { title: 'Cada pieza donde la quieras', text: 'Arrastrás cada pieza sobre una vista previa y le cambiás el tamaño. Se guardan ubicaciones con nombre, por ejemplo una por estudio.' },
+  { title: 'Liviano para la PC del stream', text: 'Una sola página para todos los juegos y nada se redibuja si no cambia. El panel puede estar en otra PC de la red.' },
+];
+const software = [
+  { name: 'vMix', text: 'Un input Web Browser de 1920×1080. Opcional: que vMix entre y saque cada pieza de su canal de overlay.' },
+  { name: 'OBS', text: 'Una fuente Navegador de 1920×1080, con fondo transparente.' },
+  { name: 'Resolume', text: 'La gráfica llega por NDI o Spout con transparencia, desde OBS o vMix.' },
+];
+const delivery = [
+  { title: 'Comprás', text: 'Pagás con tarjeta en la tienda segura de Polar, desde cualquier país.' },
+  { title: 'Te llega tu acceso', text: 'Recibís un mail. En tu cuenta de la tienda están tu clave de licencia y la descarga de Playlayer.' },
+  { title: 'Lo instalás', text: 'Descomprimís la carpeta y hacés doble clic en "Crear icono en el escritorio". No hace falta instalar nada más.' },
+  { title: 'Pegás tu clave', text: `Abrís Playlayer, pegás la clave y queda activado. Vale para ${playlayer.devices} PCs, y cuando cambiás de PC liberás la anterior.` },
+];
+const faqs = [
+  { q: '¿Qué necesito?', a: 'Una PC con Windows 10 u 11 y tu programa de transmisión: vMix, OBS o Resolume. Playlayer trae todo lo que necesita para funcionar.' },
+  { q: '¿Necesito internet?', a: `Solo para activar la licencia la primera vez. Después funciona en redes cerradas: se comprueba sola cuando hay conexión y aguanta hasta ${playlayer.offlineDays} días sin internet.` },
+  { q: '¿En cuántas PCs lo puedo usar?', a: `En ${playlayer.devices} con la misma licencia. Si cambiás una, la liberás desde Playlayer o desde tu cuenta de la tienda y activás la nueva.` },
+  { q: '¿Los participantes tienen que instalar algo?', a: 'No. Entran desde el navegador del celular escaneando un código QR.' },
+  { q: '¿Puedo usar los colores y las tipografías de mi programa?', a: 'Sí. Podés crear varias marcas (por ejemplo, una por programa) e importar el manual de marca. Los colores de acierto, pasa y fallo se mantienen para que el juego se entienda.' },
+  { q: '¿Lo puedo probar antes?', a: 'Acá arriba podés jugar una versión de Letra a Letra en el navegador. Sin licencia, la app funciona completa pero con la marca "versión de prueba" en la gráfica.' },
+];
+---
+<Layout title="Playlayer | Juegos en vivo para streams · Augusto Lupo" description="Playlayer: nueve juegos con gráfica lista para el aire, para vMix, OBS y Resolume. Creado por Augusto Lupo." section="portfolio">
+  <div class="pl">
+    <!-- Portada -->
+    <section class="shell hero">
+      <nav class="crumbs" aria-label="Ubicación">
+        <a class="btn back" href="/#portfolio"><Icon name="arrow-left" /> Portfolio</a>
+      </nav>
+      <div class="hero-grid">
+        <div class="hero-copy" data-reveal>
+          <p class="eyebrow">Proyecto propio · Software para streaming</p>
+          <h1 class="logo"><i aria-hidden="true"></i>playlayer</h1>
+          <p class="tagline">Juegos en vivo para tu stream, listos para el aire.</p>
+          <p class="lead">Nueve juegos con su gráfica, manejados desde un panel. Salen en vMix, OBS o Resolume con fondo transparente y con los colores de tu marca.</p>
+          <div class="ctas">
+            <a class="btn btn-pl" href={buyUrl} {...buyExternal}>{buyLabel} <Icon name="arrow-right" /></a>
+            <a class="btn" href="#demo">Probar la demo</a>
+          </div>
+          {playlayer.price && <p class="price-inline"><strong>{playlayer.price}</strong> {playlayer.priceNote}</p>}
+          <ul class="chips" aria-label="En resumen">
+            <li class="chip">9 juegos</li><li class="chip">vMix · OBS · Resolume</li>
+            <li class="chip">Windows 10 y 11</li><li class="chip">Licencia para {playlayer.devices} PCs</li>
+          </ul>
+        </div>
+        <div class="hero-shot card" data-reveal="scale" aria-hidden="true">
+          <img src="/playlayer/juegos/rueda.svg" alt="" width="640" height="360" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo jugable -->
+    <section class="shell block" id="demo">
+      <p class="eyebrow">Probalo acá</p>
+      <h2>Una ronda de Letra a Letra</h2>
+      <p class="sub muted">Así se ve al aire y así se maneja. Usá los botones o las teclas <kbd>A</kbd> acierto, <kbd>P</kbd> pasa, <kbd>F</kbd> fallo y <kbd>Espacio</kbd> para el reloj.</p>
+      <div class="demo card" data-demo>
+        <div class="stage" aria-label="Vista previa de la gráfica al aire">
+          <span class="cam">Tu cámara</span>
+          <div class="wheel" data-wheel></div>
+          <div class="clock" data-clock><b class="dot"></b><span data-time>2:00</span></div>
+          <div class="q" data-q><b data-qletter>A</b><span><small data-qmode>Empieza con</small><em data-qtext></em></span></div>
+          <div class="done" data-done hidden><strong data-donetext></strong></div>
+        </div>
+        <div class="panel">
+          <div class="answer"><small>Respuesta (solo la ves vos)</small><strong data-answer></strong></div>
+          <div class="marks">
+            <button class="mk ok" data-mark="correct">Acierto <kbd>A</kbd></button>
+            <button class="mk pass" data-mark="pass">Pasa <kbd>P</kbd></button>
+            <button class="mk bad" data-mark="wrong">Fallo <kbd>F</kbd></button>
+          </div>
+          <div class="row">
+            <button class="btn small" data-act="timer">Iniciar reloj <kbd>Espacio</kbd></button>
+            <button class="btn small" data-act="reset">Empezar de nuevo</button>
+            <span class="score" data-score></span>
+          </div>
+          <div class="brand">
+            <span>Probá una marca:</span>
+            <div class="swatches" role="group" aria-label="Color de marca">
+              <button style="--c:#2f5bff" data-color="#2f5bff" aria-label="Azul" class="on"></button>
+              <button style="--c:#e63946" data-color="#e63946" aria-label="Rojo"></button>
+              <button style="--c:#12b76a" data-color="#12b76a" aria-label="Verde"></button>
+              <button style="--c:#8b5cf6" data-color="#8b5cf6" aria-label="Violeta"></button>
+              <button style="--c:#f97316" data-color="#f97316" aria-label="Naranja"></button>
+            </div>
+            <div class="seg" role="group" aria-label="Estilo de cajas">
+              <button data-box="oscura" class="on">Cajas oscuras</button><button data-box="clara">Claras con borde</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="note muted">Versión simplificada que corre en tu navegador. En Playlayer el panel y la gráfica van separados: el panel en tu PC (o en otra de la red) y la gráfica en tu programa de transmisión.</p>
+    </section>
+
+    {playlayer.youtubeId && <section class="shell block">
+      <div class="video card"><iframe src={`https://www.youtube-nocookie.com/embed/${playlayer.youtubeId}`} title="Video de Playlayer" loading="lazy" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+    </section>}
+
+    <!-- Juegos -->
+    <section class="shell block">
+      <p class="eyebrow">Incluye</p>
+      <h2>Nueve juegos</h2>
+      <ul class="games">
+        {games.map(g => (
+          <li class="card card-hover game" data-reveal>
+            <img src={`/playlayer/juegos/${g.id}.svg`} alt="" width="640" height="360" loading="lazy" />
+            <div><strong>{g.name}</strong><p class="muted">{g.text}</p></div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Cómo funciona -->
+    <section class="shell block">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2>Un panel para vos, la gráfica en tu programa</h2>
+      <ol class="steps3">
+        <li class="card" data-reveal><span>1</span><strong>Abrís Playlayer</strong><p class="muted">Doble clic en el icono: se abre en el navegador con todos los juegos.</p></li>
+        <li class="card" data-reveal><span>2</span><strong>Sumás la gráfica</strong><p class="muted">Copiás una dirección y la agregás a tu programa. Con un solo input alcanza para todos los juegos.</p></li>
+        <li class="card" data-reveal><span>3</span><strong>Jugás</strong><p class="muted">Ponés y sacás cada pieza del aire, marcás con el teclado y los puntajes se suman solos.</p></li>
+      </ol>
+      <ul class="soft">
+        {software.map(s => <li class="card" data-reveal><strong>{s.name}</strong><p class="muted">{s.text}</p></li>)}
+      </ul>
+    </section>
+
+    <!-- Funciones -->
+    <section class="shell block">
+      <p class="eyebrow">Pensado para producir en vivo</p>
+      <h2>Lo que trae</h2>
+      <ul class="features">
+        {features.map(f => <li data-reveal><strong>{f.title}</strong><p class="muted">{f.text}</p></li>)}
+      </ul>
+    </section>
+
+    <!-- Cómo lo recibís -->
+    <section class="shell block" id="comprar">
+      <p class="eyebrow">Cómo lo recibís</p>
+      <h2>De la compra al aire en minutos</h2>
+      <div class="buy-grid">
+        <ol class="timeline">
+          {delivery.map((d, i) => <li data-reveal><span>{i + 1}</span><div><strong>{d.title}</strong><p class="muted">{d.text}</p></div></li>)}
+        </ol>
+        <div class="card buy" data-reveal="scale">
+          <h3 class="logo small"><i aria-hidden="true"></i>playlayer</h3>
+          {playlayer.price ? <p class="price"><strong>{playlayer.price}</strong><span class="muted">{playlayer.priceNote}</span></p>
+            : <p class="muted">Escribime y te paso el precio y cómo comprarlo.</p>}
+          <ul class="incl">
+            <li><Icon name="check" /> Los 9 juegos con su gráfica</li>
+            <li><Icon name="check" /> Licencia para {playlayer.devices} PCs</li>
+            <li><Icon name="check" /> vMix, OBS y Resolume</li>
+            <li><Icon name="check" /> Marcas, tipografías y grabación en .mov</li>
+            <li><Icon name="check" /> Funciona sin internet después de activarlo</li>
+          </ul>
+          <a class="btn btn-pl wide" href={buyUrl} {...buyExternal}>{buyLabel} <Icon name="arrow-right" /></a>
+          <p class="fine muted">{playlayer.checkoutUrl ? 'Pago seguro con Polar. Recibís la clave y la descarga al instante.' : 'Te respondo por Instagram.'}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preguntas -->
+    <section class="shell block">
+      <p class="eyebrow">Preguntas</p>
+      <h2>Antes de comprar</h2>
+      <div class="faq">
+        {faqs.map(f => <details class="card"><summary>{f.q}</summary><p class="muted">{f.a}</p></details>)}
+      </div>
+      <p class="credit muted">Playlayer es un proyecto propio: idea, diseño y desarrollo de Augusto Lupo, a partir de lo que hago en transmisiones en vivo.</p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  @font-face { font-family: 'PL Sora'; font-weight: 100 800; font-display: swap; src: url('/playlayer/Sora.woff2') format('woff2'); }
+  .pl { --pl: #2f5bff; --pl-soft: #9db2ff; --display: 'PL Sora', var(--sans); padding-bottom: 4rem; }
+  .pl h2 { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 700; margin: .8rem 0 1rem; }
+  .block { padding-block: clamp(3.5rem, 8vw, 6rem); }
+  .sub { max-width: 60ch; margin-bottom: 1.6rem; }
+  kbd { font: 600 .78em var(--mono); padding: .1em .45em; border-radius: .35em; border: 1px solid var(--border-strong); background: rgb(255 255 255 / .05); }
+
+  /* Logo de Playlayer */
+  .logo { display: inline-flex; align-items: center; gap: .38em; font: 800 clamp(3.2rem, 9vw, 6rem)/1 var(--display); letter-spacing: -.045em; margin-top: 1rem; }
+  .logo i { width: 1.15em; height: 1.15em; border-radius: 50%; border: .12em solid currentColor; display: inline-grid; place-items: center; flex: none; }
+  .logo i::after { content: ''; width: .38em; height: .38em; border-radius: 50%; background: var(--pl); box-shadow: 0 0 .5em var(--pl); }
+  .logo.small { font-size: 1.9rem; margin: 0 0 1rem; }
+
+  /* Portada */
+  .hero { padding-top: 7rem; }
+  .back { padding: .55rem .95rem; font-size: .88rem; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-top: 2rem; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
+  .tagline { font: 700 clamp(1.3rem, 2.4vw, 1.75rem)/1.2 var(--display); letter-spacing: -.02em; margin-top: 1.2rem; }
+  .lead { color: var(--muted); margin-top: .9rem; max-width: 52ch; font-size: 1.05rem; }
+  .ctas { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.6rem; }
+  .btn-pl { background: var(--pl); border-color: transparent; color: #fff; box-shadow: 0 12px 32px -12px rgb(47 91 255 / .95); }
+  .btn-pl:hover { background: #4870ff; border-color: transparent; }
+  .price-inline { margin-top: 1rem; color: var(--muted); } .price-inline strong { color: var(--text); font-size: 1.2rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: 1.4rem 0 0; }
+  .hero-shot { overflow: hidden; padding: 0; transform: rotate(1.2deg); }
+  .hero-shot img { display: block; width: 100%; }
+
+  /* Demo */
+  .demo { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr); gap: 0; overflow: hidden; padding: 0; }
+  @media (max-width: 900px) { .demo { grid-template-columns: 1fr; } }
+  .stage { --brand: #2f5bff; --box: #141414; --box-text: #fff; --bd: 0px; --rad: 1.1cqw; --shadow: 0 .4cqw 1.4cqw rgb(0 0 0 / .35);
+    position: relative; container-type: inline-size; aspect-ratio: 16 / 9; overflow: hidden;
+    background: radial-gradient(60% 70% at 50% 45%, #4a5163, #22262f 70%, #16181e); font-family: var(--display); }
+  .stage[data-style='clara'] { --box: #fff; --box-text: #111318; --bd: .25cqw; --rad: .8cqw; --shadow: -.4cqw .4cqw 0 rgb(0 0 0 / .5); }
+  .cam { position: absolute; left: 2cqw; top: 1.6cqw; font: 500 1.3cqw var(--mono); color: rgb(255 255 255 / .45); letter-spacing: .1em; text-transform: uppercase; }
+  .wheel { position: absolute; inset: 0; }
+  .wheel :global(.tile) { position: absolute; width: 3.6cqw; height: 3.6cqw; margin: -1.8cqw 0 0 -1.8cqw; border-radius: calc(var(--rad) * .7); display: grid; place-items: center;
+    font-weight: 800; font-size: 1.75cqw; background: var(--box); color: var(--box-text); border: var(--bd) solid var(--brand); box-shadow: var(--shadow);
+    transition: background-color .25s, transform .25s, color .25s; }
+  .wheel :global(.tile.correct) { background: #19c37d; color: #fff; border-color: #fff; }
+  .wheel :global(.tile.pass) { background: #f5c518; color: #1b1f3a; border-color: #fff; }
+  .wheel :global(.tile.wrong) { background: #ef4444; color: #fff; border-color: #fff; }
+  .wheel :global(.tile.current) { background: var(--brand); color: #fff; border: .25cqw solid #fff; transform: scale(1.22); z-index: 1; }
+  .clock { position: absolute; right: 2cqw; top: 2cqw; display: flex; align-items: center; gap: .9cqw; padding: .8cqw 1.6cqw; border-radius: var(--rad);
+    background: var(--box); color: var(--box-text); border: var(--bd) solid var(--brand); box-shadow: var(--shadow); font-weight: 800; font-size: 3.4cqw; font-variant-numeric: tabular-nums; }
+  .clock .dot { width: 1.1cqw; height: 1.1cqw; border-radius: 50%; background: var(--brand); }
+  .clock.low span { color: #ef4444; }
+  .q { position: absolute; left: 8.4cqw; right: 8.4cqw; bottom: 1.4cqw; min-height: 7.5cqw; display: flex; overflow: hidden; border-radius: var(--rad);
+    background: var(--box); color: var(--box-text); border: var(--bd) solid var(--brand); box-shadow: var(--shadow); }
+  .q b { background: var(--brand); color: #fff; min-width: 9cqw; display: grid; place-items: center; font-size: 4.4cqw; }
+  .q > span { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: .8cqw 2cqw; text-transform: uppercase; }
+  .q small { font-size: 1.2cqw; opacity: .7; letter-spacing: .1em; }
+  .q em { font-style: normal; font-weight: 800; font-size: 2.4cqw; line-height: 1.1; }
+  .done { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(0 0 0 / .45); }
+  .done strong { font-size: 4cqw; padding: 1.4cqw 3cqw; border-radius: var(--rad); background: var(--brand); color: #fff; }
+  .panel { padding: 1.3rem; display: flex; flex-direction: column; gap: 1rem; border-left: 1px solid var(--border); background: rgb(14 15 19 / .6); }
+  @media (max-width: 900px) { .panel { border-left: 0; border-top: 1px solid var(--border); } }
+  .answer small { display: block; color: var(--muted); font-size: .8rem; }
+  .answer strong { font: 800 1.6rem/1.2 var(--display); text-transform: uppercase; }
+  .marks { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .mk { border: 0; border-radius: .7rem; padding: .95rem .4rem; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+  .mk kbd { background: rgb(0 0 0 / .15); border-color: rgb(0 0 0 / .2); }
+  .mk.ok { background: #19c37d; color: #fff; } .mk.pass { background: #f5c518; color: #1b1f3a; } .mk.bad { background: #ef4444; color: #fff; }
+  .mk:hover { filter: brightness(1.08); } .mk:active { transform: translateY(1px); }
+  .mk:disabled { opacity: .45; cursor: default; }
+  .row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .btn.small { padding: .55rem .85rem; font-size: .85rem; }
+  .score { font-size: .88rem; color: var(--muted); margin-left: auto; }
+  .brand { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; padding-top: .9rem; border-top: 1px solid var(--border); font-size: .88rem; color: var(--muted); }
+  .swatches { display: flex; gap: .4rem; }
+  .swatches button { width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 2px solid transparent; background: var(--c); cursor: pointer; padding: 0; }
+  .swatches button.on { border-color: #fff; box-shadow: 0 0 0 2px var(--c); }
+  .seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: .6rem; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: .4rem .7rem; font-size: .8rem; cursor: pointer; }
+  .seg button.on { background: var(--pl); color: #fff; }
+  .note { font-size: .88rem; margin-top: 1rem; max-width: 70ch; }
+  .video { padding: 0; overflow: hidden; aspect-ratio: 16 / 9; } .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  /* Juegos */
+  .games { list-style: none; margin: 1.6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1rem; }
+  .game { overflow: hidden; padding: 0; display: flex; flex-direction: column; }
+  .game img { display: block; width: 100%; aspect-ratio: 16 / 9; }
+  .game div { padding: 1rem 1.15rem 1.2rem; }
+  .game strong { font-size: 1.08rem; } .game p { font-size: .9rem; margin-top: .35rem; }
+
+  /* Cómo funciona */
+  .steps3 { list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .soft { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 800px) { .steps3, .soft { grid-template-columns: 1fr; } }
+  .steps3 li, .soft li { padding: 1.3rem; }
+  .steps3 span { display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--pl); color: #fff; font: 800 1rem var(--display); margin-bottom: .8rem; }
+  .steps3 strong, .soft strong { display: block; font-size: 1.1rem; margin-bottom: .3rem; }
+  .soft strong { font-family: var(--display); }
+  .steps3 p, .soft p { font-size: .92rem; }
+
+  /* Funciones */
+  .features { list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: 1.6rem 2rem; }
+  .features li { padding-left: 1.1rem; border-left: 2px solid var(--pl); }
+  .features strong { display: block; font-size: 1.05rem; margin-bottom: .3rem; }
+  .features p { font-size: .92rem; }
+
+  /* Cómo lo recibís y compra */
+  .buy-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: start; margin-top: 1.6rem; }
+  @media (max-width: 860px) { .buy-grid { grid-template-columns: 1fr; } }
+  .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.3rem; }
+  .timeline li { display: flex; gap: 1rem; }
+  .timeline span { flex: none; display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--pl); color: var(--pl-soft); font: 700 .95rem var(--display); }
+  .timeline strong { display: block; font-size: 1.05rem; }
+  .timeline p { font-size: .93rem; margin-top: .15rem; }
+  .buy { padding: 1.6rem; border-color: rgb(47 91 255 / .45); }
+  .price strong { font: 800 2.4rem/1 var(--display); display: block; } .price span { font-size: .9rem; }
+  .incl { list-style: none; padding: 0; margin: 1.1rem 0 1.4rem; display: flex; flex-direction: column; gap: .55rem; font-size: .93rem; }
+  .incl li { display: flex; gap: .55rem; align-items: center; } .incl :global(svg) { color: #86efac; flex: none; }
+  .wide { width: 100%; justify-content: center; }
+  .fine { font-size: .8rem; margin-top: .8rem; text-align: center; }
+
+  /* Preguntas */
+  .faq { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8rem; margin-top: 1.6rem; }
+  @media (max-width: 800px) { .faq { grid-template-columns: 1fr; } }
+  .faq details { padding: 1rem 1.2rem; }
+  .faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+  .faq summary::after { content: '+'; color: var(--pl-soft); font-weight: 700; }
+  .faq details[open] summary::after { content: '−'; }
+  .faq p { margin-top: .6rem; font-size: .93rem; }
+  .credit { margin-top: 2.5rem; font-size: .9rem; }
+</style>
+
+<script>
+  // Demo de Letra a Letra: estado en memoria, reloj que solo corre mientras está en marcha.
+  const SAMPLE: [string, string, string][] = [
+    ['A', 'Insecto que produce miel', 'Abeja'], ['B', 'Embarcación pequeña que se mueve con remos', 'Bote'],
+    ['C', 'Lugar donde se proyectan películas', 'Cine'], ['D', 'Cubo con puntos que se tira en los juegos de mesa', 'Dado'],
+    ['E', 'Animal terrestre más grande, con trompa', 'Elefante'], ['F', 'Deporte de once jugadores por equipo y una pelota', 'Fútbol'],
+    ['G', 'Instrumento musical de seis cuerdas', 'Guitarra'], ['H', 'Agua en estado sólido', 'Hielo'],
+    ['I', 'Porción de tierra rodeada de agua', 'Isla'], ['J', 'Mamífero de cuello muy largo', 'Jirafa'],
+    ['K', 'Unidad de masa equivalente a mil gramos', 'Kilogramo'], ['L', 'Satélite natural de la Tierra', 'Luna'],
+    ['M', 'Fruta de la que se obtiene la sidra', 'Manzana'], ['N', 'Color que resulta de mezclar rojo y amarillo', 'Naranja'],
+    ['Ñ', 'Estación del año que sigue al verano', 'Otoño'], ['O', 'Metal precioso de color amarillo', 'Oro'],
+    ['P', 'Ave que no vuela y vive en la Antártida', 'Pingüino'], ['Q', 'Alimento que se elabora cuajando leche', 'Queso'],
+    ['R', 'Aparato que marca la hora', 'Reloj'], ['S', 'Estrella alrededor de la cual gira la Tierra', 'Sol'],
+    ['T', 'Vehículo que circula sobre rieles', 'Tren'], ['U', 'Fruta con la que se elabora el vino', 'Uva'],
+    ['V', 'Estación más calurosa del año', 'Verano'], ['W', 'Deporte acuático de equipo que se juega con una pelota', 'Waterpolo'],
+    ['X', 'Auto con chofer que se paga por viaje', 'Taxi'], ['Y', 'Parte amarilla del huevo', 'Yema'], ['Z', 'Calzado que cubre el pie', 'Zapato'],
+  ];
+  const CONTAINS = new Set(['Ñ', 'X']);
+  const TOTAL = 120_000;
+  const root = document.querySelector<HTMLElement>('[data-demo]');
+  if (root) {
+    const $ = <T extends HTMLElement>(s: string) => root.querySelector<T>(s)!;
+    const stage = $('.stage');
+    let status: string[] = [], current = 0, remaining = TOTAL, running = false, startedAt = 0, timer = 0;
+    const wheel = $('[data-wheel]');
+    const tiles = SAMPLE.map(([l], i) => {
+      const t = document.createElement('span');
+      t.className = 'tile'; t.textContent = l;
+      const a = (i / SAMPLE.length) * Math.PI * 2 - Math.PI / 2;
+      t.style.left = `${50 + Math.cos(a) * 19}%`;
+      t.style.top = `${40 + Math.sin(a) * 33}%`;
+      wheel.appendChild(t);
+      return t;
+    });
+    const left = () => (running ? Math.max(0, remaining - (performance.now() - startedAt)) : remaining);
+    const fmt = (ms: number) => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+    const pendingFrom = (from: number) => {
+      for (let k = 1; k <= SAMPLE.length; k++) { const i = (from + k) % SAMPLE.length; if (status[i] === 'pending' || status[i] === 'pass') return i; }
+      return -1;
+    };
+    function reset() { stop(); status = SAMPLE.map(() => 'pending'); current = 0; remaining = TOTAL; render(); }
+    function start() { if (running || finished()) return; running = true; startedAt = performance.now(); timer = window.setInterval(tick, 250); render(); }
+    function stop() { if (!running) return; remaining = left(); running = false; clearInterval(timer); render(); }
+    function tick() { if (left() <= 0) { remaining = 0; running = false; clearInterval(timer); } renderClock(); if (!running) render(); }
+    const finished = () => remaining <= 0 || pendingFrom(current - 1) < 0;
+    function mark(kind: string) {
+      if (finished()) return;
+      status[current] = kind;
+      if (kind !== 'correct') stop(); // como en la app: pasa y fallo pausan el reloj
+      const next = pendingFrom(current);
+      if (next >= 0) current = next;
+      render();
+    }
+    function renderClock() {
+      const ms = left();
+      $('[data-time]').textContent = fmt(ms);
+      $('[data-clock]').classList.toggle('low', ms <= 10_000);
+    }
+    function render() {
+      const done = finished();
+      tiles.forEach((t, i) => { t.className = 'tile ' + (status[i] === 'pending' ? '' : status[i]) + (i === current && !done ? ' current' : ''); });
+      const [l, q, ans] = SAMPLE[current];
+      $('[data-qletter]').textContent = l;
+      $('[data-qmode]').textContent = CONTAINS.has(l) ? 'Contiene la' : 'Empieza con';
+      $('[data-qtext]').textContent = q;
+      $('[data-answer]').textContent = ans;
+      const ok = status.filter(s => s === 'correct').length, bad = status.filter(s => s === 'wrong').length;
+      $('[data-score]').textContent = `${ok} aciertos · ${bad} fallos`;
+      $('[data-done]').hidden = !done;
+      $('[data-donetext]').textContent = remaining <= 0 ? `Tiempo · ${ok} aciertos` : `¡Rueda completa! ${ok} aciertos`;
+      root!.querySelectorAll<HTMLButtonElement>('[data-mark]').forEach(b => { b.disabled = done; });
+      $('[data-act="timer"]').innerHTML = (running ? 'Pausar reloj' : 'Iniciar reloj') + ' <kbd>Espacio</kbd>';
+      renderClock();
+    }
+    root.addEventListener('click', e => {
+      const b = (e.target as HTMLElement).closest('button');
+      if (!b) return;
+      if (b.dataset.mark) mark(b.dataset.mark);
+      else if (b.dataset.act === 'timer') (running ? stop() : start());
+      else if (b.dataset.act === 'reset') reset();
+      else if (b.dataset.color) {
+        stage.style.setProperty('--brand', b.dataset.color);
+        root.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b));
+      } else if (b.dataset.box) {
+        stage.dataset.style = b.dataset.box;
+        root.querySelectorAll('[data-box]').forEach(x => x.classList.toggle('on', x === b));
+      }
+    });
+    // Teclas solo mientras la demo está a la vista (y no se escribe en otro lado)
+    let visible = false;
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) stop(); }, { threshold: 0.4 }).observe(root);
+    addEventListener('keydown', e => {
+      if (!visible || e.ctrlKey || e.metaKey || e.altKey || (e.target as HTMLElement).closest('input, textarea, select')) return;
+      const k = e.key.toLowerCase();
+      const act = ({ a: () => mark('correct'), p: () => mark('pass'), f: () => mark('wrong'), ' ': () => (running ? stop() : start()) } as Record<string, () => void>)[k];
+      if (act) { e.preventDefault(); act(); }
+    });
+    reset();
+  }
+</script>

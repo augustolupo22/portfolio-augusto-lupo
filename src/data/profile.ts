@@ -6,7 +6,7 @@ export type Photo = { src: string; alt: string };
 export interface Education { institution: string; title: string; detail: string }
 export interface Experience { place: string; type: string; role: string; detail: string; project?: string }
 export interface Tool { name: string; short: string; color: string; use: string }
-export interface OwnProject { name: string; description: string; status: 'Publicado' | 'En desarrollo' | 'Próximamente'; url?: string }
+export interface OwnProject { name: string; description: string; status: 'Publicado' | 'En desarrollo' | 'Próximamente'; url?: string; linkLabel?: string }
 export interface Client { name: string; type: string; projects: string[]; extra?: string[] }
 
 export const profile = {
@@ -64,8 +64,8 @@ export const profile = {
       description: 'Sitio hecho con Astro, credencial 3D interactiva y muro de mensajes conectado a una base de datos.',
     },
     {
-      name: 'Juegos para producciones en vivo', status: 'En desarrollo',
-      description: 'Una página con juegos para usar en producciones en vivo, que además funciona como panel de control para gestionarlos durante la transmisión.',
+      name: 'Playlayer', status: 'Publicado', url: '/playlayer', linkLabel: 'Conocer Playlayer',
+      description: 'Juegos en vivo para streams: nueve juegos con gráfica lista para el aire, manejados desde un panel, para vMix, OBS y Resolume.',
     },
   ] as OwnProject[],
 
