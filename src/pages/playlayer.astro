@@ -6,7 +6,8 @@ import Icon from '../components/Icon.astro';
 import { playlayer, games } from '../data/playlayer';
 
 const buyUrl = playlayer.checkoutUrl || playlayer.contactUrl;
-const buyLabel = playlayer.checkoutUrl ? 'Comprar Playlayer' : 'Quiero Playlayer';
+const enDesarrollo = playlayer.enDesarrollo;
+const buyLabel = enDesarrollo ? 'Avisame cuando salga' : playlayer.checkoutUrl ? 'Comprar Playlayer' : 'Quiero Playlayer';
 const buyExternal = { target: '_blank', rel: 'noopener' };
 
 const features = [
@@ -47,6 +48,7 @@ const faqs = [
       <div class="hero-grid">
         <div class="hero-copy" data-reveal>
           <p class="eyebrow">Proyecto propio · Software para streaming</p>
+          {enDesarrollo && <p class="wip-badge"><i aria-hidden="true"></i>En desarrollo · Todavía no está a la venta</p>}
           <h1 class="logo"><i aria-hidden="true"></i>playlayer</h1>
           <p class="tagline">Juegos en vivo para tu stream, listos para el aire.</p>
           <p class="lead">Nueve juegos con su gráfica, manejados desde un panel. Salen en vMix, OBS o Resolume con fondo transparente y con los colores de tu marca.</p>
@@ -54,7 +56,7 @@ const faqs = [
             <a class="btn btn-pl" href={buyUrl} {...buyExternal}>{buyLabel} <Icon name="arrow-right" /></a>
             <a class="btn" href="#demo">Probar la demo</a>
           </div>
-          {playlayer.price && <p class="price-inline"><strong>{playlayer.price}</strong> {playlayer.priceNote}</p>}
+          {!enDesarrollo && playlayer.price && <p class="price-inline"><strong>{playlayer.price}</strong> {playlayer.priceNote}</p>}
           <ul class="chips" aria-label="En resumen">
             <li class="chip">9 juegos</li><li class="chip">vMix · OBS · Resolume</li>
             <li class="chip">Windows 10 y 11</li><li class="chip">Licencia para {playlayer.devices} PCs</li>
@@ -154,13 +156,15 @@ const faqs = [
     <section class="shell block" id="comprar">
       <p class="eyebrow">Cómo lo recibís</p>
       <h2>De la compra al aire en minutos</h2>
+      {enDesarrollo && <p class="muted wip-note">Playlayer está en desarrollo. Así va a ser la compra cuando salga a la venta.</p>}
       <div class="buy-grid">
         <ol class="timeline">
           {delivery.map((d, i) => <li data-reveal><span>{i + 1}</span><div><strong>{d.title}</strong><p class="muted">{d.text}</p></div></li>)}
         </ol>
         <div class="card buy" data-reveal="scale">
           <h3 class="logo small"><i aria-hidden="true"></i>playlayer</h3>
-          {playlayer.price ? <p class="price"><strong>{playlayer.price}</strong><span class="muted">{playlayer.priceNote}</span></p>
+          {enDesarrollo ? <p class="muted">Está en desarrollo. Escribime y te aviso cuando salga a la venta.</p>
+            : playlayer.price ? <p class="price"><strong>{playlayer.price}</strong><span class="muted">{playlayer.priceNote}</span></p>
             : <p class="muted">Escribime y te paso el precio y cómo comprarlo.</p>}
           <ul class="incl">
             <li><Icon name="check" /> Los 9 juegos con su gráfica</li>
@@ -170,7 +174,7 @@ const faqs = [
             <li><Icon name="check" /> Funciona sin internet después de activarlo</li>
           </ul>
           <a class="btn btn-pl wide" href={buyUrl} {...buyExternal}>{buyLabel} <Icon name="arrow-right" /></a>
-          <p class="fine muted">{playlayer.checkoutUrl ? 'Pago seguro con Polar. Recibís la clave y la descarga al instante.' : 'Te respondo por Instagram.'}</p>
+          <p class="fine muted">{enDesarrollo ? 'Te respondo por Instagram.' : playlayer.checkoutUrl ? 'Pago seguro con Polar. Recibís la clave y la descarga al instante.' : 'Te respondo por Instagram.'}</p>
         </div>
       </div>
     </section>
@@ -212,6 +216,11 @@ const faqs = [
   .btn-pl { background: var(--pl); border-color: transparent; color: #fff; box-shadow: 0 12px 32px -12px rgb(47 91 255 / .95); }
   .btn-pl:hover { background: #4870ff; border-color: transparent; }
   .price-inline { margin-top: 1rem; color: var(--muted); } .price-inline strong { color: var(--text); font-size: 1.2rem; }
+  .wip-badge { display: inline-flex; align-items: center; gap: .5rem; margin: .2rem 0 1rem; padding: .3rem .75rem; border: 1px solid #f5b300; border-radius: 99px; color: #f5b300; font: 600 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+  .wip-badge i { width: .5rem; height: .5rem; border-radius: 50%; background: #f5b300; animation: wipblink 1.6s ease-in-out infinite; }
+  @keyframes wipblink { 50% { opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) { .wip-badge i { animation: none; } }
+  .wip-note { margin: -.4rem 0 1.4rem; }
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: 1.4rem 0 0; }
   .hero-shot { overflow: hidden; padding: 0; transform: rotate(1.2deg); }
   .hero-shot img { display: block; width: 100%; }

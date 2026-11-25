@@ -64,7 +64,7 @@ export const profile = {
       description: 'Sitio hecho con Astro, credencial 3D interactiva y muro de mensajes conectado a una base de datos.',
     },
     {
-      name: 'Playlayer', status: 'Publicado', url: '/playlayer', linkLabel: 'Conocer Playlayer',
+      name: 'Playlayer', status: 'En desarrollo', url: '/playlayer', linkLabel: 'Conocer Playlayer',
       description: 'Juegos en vivo para streams: nueve juegos con gráfica lista para el aire, manejados desde un panel, para vMix, OBS y Resolume.',
     },
   ] as OwnProject[],

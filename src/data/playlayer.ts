@@ -3,6 +3,8 @@
 // Regla: no poner precios ni promesas que Augusto no haya confirmado.
 
 export const playlayer = {
+  /** true = todavía en desarrollo: se muestra el aviso y el botón pide que le avisen en vez de comprar. */
+  enDesarrollo: true,
   /** Link de checkout del producto en Polar (por ejemplo https://buy.polar.sh/polar_cl_…). */
   checkoutUrl: '',
   /** Precio tal cual se muestra (por ejemplo 'USD 49'). Vacío = no se muestra. */
